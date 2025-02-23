@@ -32,15 +32,16 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/register", "/login").permitAll() // Allow public access
-                .requestMatchers("/property/add/**").hasAuthority("SELLER")
+                .requestMatchers("/register", "/login").permitAll() // Public access
+                .requestMatchers("/property/add/**").hasAuthority("SELLER") // Sellers can add properties
+                .requestMatchers("/api/reviews/**", "/api/ratings/**").hasAnyAuthority("BUYER", "RENTER") // ✅ Allow Buyers & Renters
                 .anyRequest().authenticated()
             )
             .exceptionHandling(exception -> exception
                 .accessDeniedHandler((request, response, accessDeniedException) -> {
                     response.setContentType("application/json");
                     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                    response.getWriter().write("{\"message\":\"unauthorized access\"}");
+                    response.getWriter().write("{\"message\":\"Unauthorized access\"}");
                 })
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -48,7 +49,6 @@ public class SecurityConfig {
 
         return http.build();
     }
-
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -69,8 +69,7 @@ public class SecurityConfig {
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // ✅ Corrected path
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
 }
