@@ -12,6 +12,9 @@ import Login from './Pages/Login';
 import Details from './Pages/Details'; // Import the Details page
 import Wishlist from './Pages/Wishlist';
 import OrderDetails from "./Pages/OrderDetails";
+import BillingAddress from "./Pages/BillingAddress";
+import Payment from "./Pages/Payment"
+
 
 
 function App() {
@@ -40,7 +43,8 @@ function App() {
             <Route path="/viewdetails" element={<Details></Details>}></Route>
             <Route path="/wishlist" element={<Wishlist></Wishlist>}></Route>
             <Route path="/order-details" element={<OrderDetails />} />
-            
+            <Route path="/billing-address" element={<BillingAddress />} />
+            <Route path="/payment" element={<Payment />} />
           </Routes>
         </Box>
 
