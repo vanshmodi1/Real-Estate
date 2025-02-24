@@ -65,9 +65,14 @@ const OrderDetails = () => {
 
       {/* Action Buttons */}
       <Box sx={{ marginTop: 4, textAlign: "center" }}>
-        <Button variant="contained" color="primary" sx={{ marginRight: 2 }} onClick={() => navigate("/payment")}>
-          Proceed to Payment
-        </Button>
+      <Button
+  variant="contained"
+  color="primary"
+  sx={{ marginRight: 2 }}
+  onClick={() => navigate("/billing-address")}
+>
+  Billing
+</Button>
         <Button variant="outlined" color="secondary" onClick={() => navigate("/")}>
           Cancel
         </Button>
