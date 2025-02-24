@@ -81,6 +81,10 @@ const Details = () => {
     localStorage.setItem("wishlist", JSON.stringify(wishlist));
   };
 
+  const handleBuyNowClick = () => {
+    navigate("/order-details"); // Navigate to the order details page
+  };
+
   if (loading) {
     return <Typography variant="h6" color="textSecondary">Loading property details...</Typography>;
   }
@@ -190,11 +194,14 @@ const Details = () => {
           </Grid>
 
           {/* Buy Now Button */}
-          <Grid item>
-            <Button variant="contained" color="primary" sx={{ marginRight: 2 }}>
-              Buy now
-            </Button>
-          </Grid>
+          <Button
+  variant="contained"
+  color="primary"
+  sx={{ marginRight: 2 }}
+  onClick={() => navigate("/order-details", { state: { property } })}
+>
+  Buy now
+</Button>
 
           {/* Go to Wishlist Button */}
           <Grid item>

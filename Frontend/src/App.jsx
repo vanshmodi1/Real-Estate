@@ -11,6 +11,7 @@ import { Box } from "@mui/material";
 import Login from './Pages/Login';
 import Details from './Pages/Details'; // Import the Details page
 import Wishlist from './Pages/Wishlist';
+import OrderDetails from "./Pages/OrderDetails";
 
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/viewdetails" element={<Details></Details>}></Route>
             <Route path="/wishlist" element={<Wishlist></Wishlist>}></Route>
+            <Route path="/order-details" element={<OrderDetails />} />
             
           </Routes>
         </Box>
