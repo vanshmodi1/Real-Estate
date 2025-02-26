@@ -1,48 +1,54 @@
 package com.example.realestate.security;
 
-
-import java.security.Key;
-import java.util.Date;
-
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
 
 @Component
 public class JwtUtil {
-    private final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256); // Generates a secure key
+
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+
+    @Value("${jwt.expiration}")
+    private long jwtExpiration;
+
+    private SecretKey getSigningKey() {
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+    }
 
     public String generateToken(String username) {
         return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour
-                .signWith(SECRET_KEY) // Use the generated key
-                .compact();
+                .setSubject(username) // Set the subject (e.g., username or email)
+                .setIssuedAt(new Date()) // Set the issue time
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration)) // Set the expiration time
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256) // Sign the token
+                .compact(); // Build the token
     }
 
-    public String extractUsername(String token) {
-        return Jwts.parser()
-                .setSigningKey(SECRET_KEY)
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
-    }
-
-    public boolean validateToken(String token, String username) {
-        String extractedUsername = extractUsername(token);
-        return (username.equals(extractedUsername) && !isTokenExpired(token));
-    }
-
-    private boolean isTokenExpired(String token) {
+    public String getUsernameFromToken(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(SECRET_KEY)
+                .setSigningKey(getSigningKey()) // Set the signing key
                 .build()
-                .parseClaimsJws(token)
+                .parseClaimsJws(token) // Parse the token
                 .getBody()
-                .getExpiration()
-                .before(new Date());
+                .getSubject(); // Get the subject (e.g., username or email)
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token);
+            return true; // Token is valid
+        } catch (JwtException | IllegalArgumentException e) {
+            return false; // Token is invalid
+        }
     }
 }

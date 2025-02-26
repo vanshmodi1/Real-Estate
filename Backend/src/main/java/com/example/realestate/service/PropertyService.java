@@ -1,9 +1,12 @@
 package com.example.realestate.service;
 
+import com.example.realestate.exception.ResourceNotFoundException;
 import com.example.realestate.model.Property;
 import com.example.realestate.model.User;
 import com.example.realestate.repository.PropertyRepository;
 import com.example.realestate.repository.UserRepository;
+import com.example.realestate.request.CreatePropertyRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,54 +21,58 @@ public class PropertyService {
 
     @Autowired
     private UserRepository userRepository;
-    public Property addProperty(Long sellerId, Property property) {
-        Optional<User> seller = userRepository.findById(sellerId);
 
-        if (seller.isPresent() && "SELLER".equals(seller.get().getRole())) {
-            property.setSeller(seller.get());
-            return propertyRepository.save(property);
-        } else {
+    public Property createProperty(CreatePropertyRequest request) {
+        User seller = userRepository.findById(request.getSellerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Seller not found"));
+
+        if (!"SELLER".equals(seller.getRole())) {
             throw new RuntimeException("User is not a seller");
         }
+
+        Property property = new Property();
+        property.setSeller(seller);
+        property.setPropertyTitle(request.getPropertyTitle());
+        property.setDescription(request.getDescription());
+        property.setLocation(request.getLocation());
+        property.setPrice(request.getPrice());
+        property.setDiscountedPrice(request.getDiscountedPrice());
+        property.setDiscountPercent(request.getDiscountPercent());
+        property.setPropertyType(request.getPropertyType());
+        property.setImageUrl(request.getImageUrl());
+        property.setPropertyCategory(request.getPropertyCategory());
+        property.setNumberOfBedrooms(request.getNumberOfBedrooms());
+        property.setNumberOfBathrooms(request.getNumberOfBathrooms());
+        property.setSquareFeet(request.getSquareFeet());
+
+        return propertyRepository.save(property);
     }
 
-    public List<Property> getPropertiesBySeller(Long sellerId) {
-        return propertyRepository.findBySellerId(sellerId);
+    public List<Property> getAllProperties() {
+        return propertyRepository.findAll();
     }
 
     public Property getPropertyById(Long propertyId) {
         return propertyRepository.findById(propertyId)
-                .orElseThrow(() -> new RuntimeException("Property not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Property not found"));
     }
 
     public Property updateProperty(Long propertyId, Property updatedProperty) {
-        Optional<Property> existingProperty = propertyRepository.findById(propertyId);
+        Property existingProperty = propertyRepository.findById(propertyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Property not found"));
 
-        if (existingProperty.isPresent()) {
-            Property property = existingProperty.get();
+        existingProperty.setLocation(updatedProperty.getLocation());
+        existingProperty.setPrice(updatedProperty.getPrice());
+        existingProperty.setType(updatedProperty.getType());
+        existingProperty.setDescription(updatedProperty.getDescription());
 
-            property.setLocation(updatedProperty.getLocation());
-            property.setPrice(updatedProperty.getPrice());
-            property.setType(updatedProperty.getType());
-            property.setDescription(updatedProperty.getDescription());
-
-            return propertyRepository.save(property);
-        } else {
-            throw new RuntimeException("Property not found");
-        }
+        return propertyRepository.save(existingProperty);
     }
 
     public void deleteProperty(Long propertyId) {
-        Optional<Property> existingProperty = propertyRepository.findById(propertyId);
+        Property existingProperty = propertyRepository.findById(propertyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Property not found"));
 
-        if (existingProperty.isPresent()) {
-            propertyRepository.delete(existingProperty.get());
-        } else {
-            throw new RuntimeException("Property not found");
-        }
-    }
-
-    public List<Property> getPropertiesByType(String type) {
-        return propertyRepository.findByType(type);
+        propertyRepository.delete(existingProperty);
     }
 }
