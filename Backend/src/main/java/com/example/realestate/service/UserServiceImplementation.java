@@ -2,11 +2,10 @@ package com.example.realestate.service;
 
 import com.example.realestate.model.User;
 import com.example.realestate.repository.UserRepository;
-import com.example.realestate.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -16,23 +15,25 @@ public class UserServiceImplementation implements UserService {
     private UserRepository userRepository;
 
     @Autowired
-    private JwtUtil jwtUtil;
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public User saveUser(User user) {
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already registered");
+        }
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
     @Override
-    public List<User> getAllUsers() {
-        return userRepository.findAllByOrderByCreatedAtDesc();
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     @Override
-    public Optional<User> findUserProfileByJwt(String jwt) {
-    	String username = jwtUtil.getUsernameFromToken(jwt);
-        return userRepository.findByEmail(username);
-
+    public boolean validatePassword(String rawPassword, String encodedPassword) {
+        return passwordEncoder.matches(rawPassword, encodedPassword);
     }
 
     @Override

@@ -3,6 +3,8 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Home from "./Pages/Home";
 import Register from "./Pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Buy from "./Pages/Buy";
 import Rent from "./Pages/Rent";
 import Sell from "./Pages/Sell";
@@ -36,6 +38,8 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="/buy" element={<Buy />} />
             <Route path="/rent" element={<Rent />} />
             <Route path="/sell" element={<Sell />} />

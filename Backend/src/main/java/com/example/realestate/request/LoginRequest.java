@@ -1,18 +1,13 @@
 package com.example.realestate.request;
 
-public class LoginRequest {
-    
-    private String email;
-    private String password;
-    
-    public LoginRequest() {
-        // Default constructor
-    }
+import jakarta.validation.constraints.NotBlank;
 
-    public LoginRequest(String email, String password) {
-        this.email = email;
-        this.password = password;
-    }
+public class LoginRequest {
+    @NotBlank
+    private String email;
+
+    @NotBlank
+    private String password;
 
     public String getEmail() {
         return email;

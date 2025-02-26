@@ -1,10 +1,10 @@
 package com.example.realestate.controllers;
 
+import com.example.realestate.response.UserResponse;
 import com.example.realestate.model.User;
-import com.example.realestate.repository.UserRepository;
-import com.example.realestate.security.JwtFilter;
 import com.example.realestate.security.JwtUtil;
 import com.example.realestate.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,48 +16,62 @@ import java.util.Optional;
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
 public class UserController {
-	
-	@Autowired
-	private UserRepository userRepository;
 
     @Autowired
     private UserService userService;
-    
-    @Autowired
-    private JwtFilter filter;
-    
+
     @Autowired
     private JwtUtil jwtUtil;
 
     @PostMapping("/register")
-	public User saveRegister(@RequestBody User user) {
-		return userService.saveUser(user);
-	}
-    
-    
-    
+    public ResponseEntity<Map<String, Object>> registerUser(@Valid @RequestBody User user) {
+        User registeredUser = userService.saveUser(user);
+        String token = jwtUtil.generateToken(registeredUser.getEmail());
+
+        UserResponse userResponse = mapUserToResponse(registeredUser);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "User registered successfully");
+        response.put("user", userResponse);
+        response.put("token", token);
+
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/login")
-	public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> loginData) {
+    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> loginData) {
+        String email = loginData.get("email");
+        String password = loginData.get("password");
 
-	    String email = loginData.get("email");
-	    String password = loginData.get("password");
-	    Optional<User> user = userRepository.findByEmail(email);
+        Optional<User> userOptional = userService.findByEmail(email);
 
-	    if (user.isPresent() && user.get().getPassword().equals(password)) {
-	        Map<String, String> response = new HashMap<>();
-	        String token = jwtUtil.generateToken(email);
+        if (userOptional.isPresent() && userService.validatePassword(password, userOptional.get().getPassword())) {
+            User user = userOptional.get();
+            String token = jwtUtil.generateToken(email);
 
-	        response.put("login", "success");
-	        response.put("token", token);
-	        response.put("role", user.get().getRole());
-	        response.put("username", user.get().getName()); 
-	        response.put("id", String.valueOf(user.get().getId())); 
+            UserResponse userResponse = mapUserToResponse(user);
 
-	        return ResponseEntity.ok(response);
-	    } else {
-	        Map<String, String> response1 = new HashMap<>();
-	        response1.put("login", "fail");
-	        return ResponseEntity.status(401).body(response1);
-	    }
-	}
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Login successful");
+            response.put("user", userResponse);
+            response.put("token", token);
+
+            return ResponseEntity.ok(response);
+        } else {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Invalid email or password");
+            return ResponseEntity.status(401).body(response);
+        }
+    }
+
+    private UserResponse mapUserToResponse(User user) {
+        UserResponse userResponse = new UserResponse();
+        userResponse.setId(user.getId());
+        userResponse.setName(user.getName());
+        userResponse.setEmail(user.getEmail());
+        userResponse.setRole(user.getRole());
+        userResponse.setCreatedAt(user.getCreatedAt());
+        userResponse.setUpdatedAt(user.getUpdatedAt());
+        return userResponse;
+    }
 }

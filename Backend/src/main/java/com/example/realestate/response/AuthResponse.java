@@ -1,13 +1,8 @@
 package com.example.realestate.response;
 
 public class AuthResponse {
-    
-    private String token;  // More intuitive name for JWT
+    private String token;
     private boolean success;
-
-    public AuthResponse() {
-        // Default constructor
-    }
 
     public AuthResponse(String token, boolean success) {
         this.token = token;

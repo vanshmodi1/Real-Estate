@@ -1,39 +1,29 @@
 package com.example.realestate.service;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import com.example.realestate.model.User;
+import com.example.realestate.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import com.example.realestate.model.User;
-import com.example.realestate.repository.UserRepository;
+import java.util.Collections;  // <-- Add this import
 
 @Service
 public class CustomUserDetails implements UserDetailsService {
 
-    private final UserRepository userRepository;
-
-    public CustomUserDetails(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(username);
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found with email: " + username);
-        }
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
-        // Convert roles to GrantedAuthority (if user has roles)
-        List<GrantedAuthority> authorities = user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority(role.name())) // Assuming roles are enums
-                .collect(Collectors.toList());
-
-        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), authorities);
+        return new org.springframework.security.core.userdetails.User(
+                user.getEmail(),
+                user.getPassword(),
+                Collections.emptyList() // Add roles/authorities if needed
+        );
     }
 }

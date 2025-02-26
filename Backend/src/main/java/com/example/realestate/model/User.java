@@ -1,67 +1,80 @@
 package com.example.realestate.model;
 
+import com.example.realestate.user.domain.UserRole;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import jakarta.validation.constraints.*;
+import java.time.LocalDateTime;
 
 @Entity
-@Getter
-@Setter
-@Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = "email")})
+@Table(name = "users")
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long seller_id;
 
-    @Column(nullable = false)
-    private String firstName;
+    @NotBlank
+    @Size(min = 2, max = 50)
+    private String name;
 
-    @Column(nullable = false)
-    private String lastName;
-
-    @Column(unique = true, nullable = false)
+    @NotBlank
+    @Email
+    @Column(unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @NotBlank
+    @Size(min = 8, max = 100)
     private String password;
 
-    @Column(nullable = false)
-    private String role;  // Example: "BUYER", "SELLER", "ADMIN"
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
     @Column(nullable = false, updatable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    @CreationTimestamp
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Address> addresses = new ArrayList<>();
+    @Column
+    private LocalDateTime updatedAt;
 
-    // Manually add getter if Lombok is not generating it
-    public List<Address> getAddresses() {
-        return addresses;
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        if (updatedAt == null) {
+            updatedAt = createdAt;
+        }
     }
 
-    // Manually add getter and setter if Lombok is not generating them
-    public String getFirstName() {
-        return firstName;
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public User() {}
+
+    public User(String name, String email, String password, UserRole role) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.role = role;
     }
 
-    public String getLastName() {
-        return lastName;
+    // Getters and Setters
+    public Long getId() {
+        return seller_id;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setId(Long id) {
+        this.seller_id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {
@@ -80,11 +93,27 @@ public class User {
         this.password = password;
     }
 
-    public String getRole() {
+    public UserRole getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(UserRole role) {
         this.role = role;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

@@ -15,36 +15,56 @@ public class PropertyController {
 
     @Autowired
     private PropertyService propertyService;
+
     @PostMapping("/add/{sellerId}")
     public ResponseEntity<Property> addProperty(@PathVariable Long sellerId, @RequestBody Property property) {
-        Property savedProperty = propertyService.addProperty(sellerId, property);
-        return ResponseEntity.ok(savedProperty);
+        try {
+            Property savedProperty = propertyService.addProperty(sellerId, property);
+            return ResponseEntity.ok(savedProperty);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
     }
+
     @GetMapping("/seller/{sellerId}")
     public ResponseEntity<List<Property>> getSellerProperties(@PathVariable Long sellerId) {
         List<Property> properties = propertyService.getPropertiesBySeller(sellerId);
         return ResponseEntity.ok(properties);
     }
+
     @GetMapping("/{propertyId}")
-    public ResponseEntity<Property> getPropertyById1(@PathVariable Long propertyId) {
+    public ResponseEntity<Property> getPropertyById(@PathVariable Long propertyId) {
         Property property = propertyService.getPropertyById(propertyId);
-        return ResponseEntity.ok(property);
+        if (property != null) {
+            return ResponseEntity.ok(property);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
+
     @PutMapping("/update/{propertyId}")
     public ResponseEntity<Property> updateProperty(@PathVariable Long propertyId, @RequestBody Property property) {
-        Property updatedProperty = propertyService.updateProperty(propertyId, property);
-        return ResponseEntity.ok(updatedProperty);
+        try {
+            Property updatedProperty = propertyService.updateProperty(propertyId, property);
+            return ResponseEntity.ok(updatedProperty);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
     }
+
     @DeleteMapping("/delete/{propertyId}")
     public ResponseEntity<Void> deleteProperty(@PathVariable Long propertyId) {
-        propertyService.deleteProperty(propertyId);
-        return ResponseEntity.noContent().build();
+        try {
+            propertyService.deleteProperty(propertyId);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
     }
+
     @GetMapping("/type/{type}")
     public ResponseEntity<List<Property>> getPropertiesByType(@PathVariable String type) {
         List<Property> properties = propertyService.getPropertiesByType(type);
         return ResponseEntity.ok(properties);
     }
-    
-   
 }

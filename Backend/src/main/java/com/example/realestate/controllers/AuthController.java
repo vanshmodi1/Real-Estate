@@ -1,87 +1,71 @@
 package com.example.realestate.controllers;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
-
-import com.example.realestate.security.JwtTokenProvider;
 import com.example.realestate.exception.UserException;
 import com.example.realestate.model.User;
 import com.example.realestate.repository.UserRepository;
 import com.example.realestate.request.LoginRequest;
 import com.example.realestate.response.AuthResponse;
-import com.example.realestate.service.CustomUserDetails;
+import com.example.realestate.security.JwtUtil;
 
 import jakarta.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final CustomUserDetails customUserDetails;
+    @Autowired
+    private UserRepository userRepository;
 
-    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                          JwtTokenProvider jwtTokenProvider, CustomUserDetails customUserDetails) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.customUserDetails = customUserDetails;
-    }
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-    @PostMapping("/signup")
-    public ResponseEntity<AuthResponse> createUserHandler(@Valid @RequestBody User user) throws UserException {
-        String email = user.getEmail();
+    @Autowired
+    private JwtUtil jwtUtil;
 
+    // Register a new user
+    @PostMapping("/register")
+    public ResponseEntity<AuthResponse> registerUser(@Valid @RequestBody User user) throws UserException {
         // Check if email is already used
-        if (userRepository.findByEmail(email) != null) {
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new UserException("Email is already used with another account.");
         }
 
         // Create new user
-        User createdUser = new User();
-        createdUser.setEmail(email);
-        createdUser.setFirstName(user.getFirstName());
-        createdUser.setLastName(user.getLastName());
-        createdUser.setPassword(passwordEncoder.encode(user.getPassword()));
-        createdUser.setRole(user.getRole());
+        User newUser = new User();
+        newUser.setEmail(user.getEmail());
+        newUser.setName(user.getName());
+        newUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        newUser.setRole(user.getRole());
 
-        userRepository.save(createdUser);
+        userRepository.save(newUser);
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(email, user.getPassword());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        // Generate JWT token
+        String token = jwtUtil.generateToken(user.getEmail());
 
-        String token = jwtTokenProvider.generateToken(authentication);
-
-        return new ResponseEntity<>(new AuthResponse(token, true), HttpStatus.OK);
+        return ResponseEntity.ok(new AuthResponse(token, true));
     }
 
-    @PostMapping("/signin")
-    public ResponseEntity<AuthResponse> signin(@RequestBody LoginRequest loginRequest) {
-        String username = loginRequest.getEmail();
-        String password = loginRequest.getPassword();
+    // Authenticate a user
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> loginUser(@Valid @RequestBody LoginRequest loginRequest) {
+        // Find user by email
+        User user = userRepository.findByEmail(loginRequest.getEmail())
+                .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
 
-        Authentication authentication = authenticate(username, password);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        String token = jwtTokenProvider.generateToken(authentication);
-        return new ResponseEntity<>(new AuthResponse(token, true), HttpStatus.OK);
-    }
-
-    private Authentication authenticate(String username, String password) {
-        UserDetails userDetails = customUserDetails.loadUserByUsername(username);
-
-        if (userDetails == null || !passwordEncoder.matches(password, userDetails.getPassword())) {
-            throw new BadCredentialsException("Invalid username or password");
+        // Validate password
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            throw new BadCredentialsException("Invalid email or password");
         }
-        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+        // Generate JWT token
+        String token = jwtUtil.generateToken(user.getEmail());
+
+        return ResponseEntity.ok(new AuthResponse(token, true));
     }
 }

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Button, TextField, Typography, Box, Paper } from "@mui/material";
+import { Button, TextField, Typography, Box, Paper, CircularProgress } from "@mui/material";
 
 const loginUser = async (email, password) => {
   try {
@@ -32,33 +32,40 @@ const Login = () => {
 
   const [errors, setErrors] = useState({});
   const [error, setError] = useState("");
-  const navigate = useNavigate(); // For redirecting after login
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.email) newErrors.email = "Email is required";
+    if (!formData.password) newErrors.password = "Password is required";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
+    if (!validateForm()) return;
+
+    setLoading(true);
+    setError("");
+
     const response = await loginUser(formData.email, formData.password);
-  
+
     if (response.error) {
       setError(response.error);
     } else {
       localStorage.setItem("token", response.token);
-      localStorage.setItem("role", response.role);
-      localStorage.setItem("id", response.id);
-      localStorage.setItem("username", response.username);
-      console.log("Stored Token:", localStorage.getItem("token"));
-console.log("Stored Role:", localStorage.getItem("role"));
-console.log("Stored ID:", localStorage.getItem("id"));
-console.log("Stored Username:", localStorage.getItem("username"));
+      localStorage.setItem("role", response.user.role);
+      localStorage.setItem("id", response.user.id);
+      localStorage.setItem("username", response.user.name);
 
-  
-      console.log("User Logged In:", response); // Debugging
-  
-      switch (response.role) {
+      switch (response.user.role) {
         case "ADMIN":
           navigate("/admin");
           break;
@@ -73,8 +80,10 @@ console.log("Stored Username:", localStorage.getItem("username"));
           navigate("/");
       }
     }
+
+    setLoading(false);
   };
-  
+
   return (
     <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
       <Paper elevation={3} sx={{ p: 4, width: 400 }}>
@@ -104,8 +113,15 @@ console.log("Stored Username:", localStorage.getItem("username"));
             helperText={errors.password}
             margin="normal"
           />
-          <Button fullWidth variant="contained" color="primary" sx={{ mt: 2 }} type="submit">
-            Login
+          <Button
+            fullWidth
+            variant="contained"
+            color="primary"
+            sx={{ mt: 2 }}
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? <CircularProgress size={24} /> : "Login"}
           </Button>
         </form>
         {error && (
@@ -115,6 +131,9 @@ console.log("Stored Username:", localStorage.getItem("username"));
         )}
         <Typography align="center" sx={{ mt: 2 }}>
           <Link to="/register">Don't have an account? Register</Link>
+        </Typography>
+        <Typography align="center" sx={{ mt: 2 }}>
+          <Link to="/forgot-password">Forgot Password?</Link>
         </Typography>
       </Paper>
     </Box>
