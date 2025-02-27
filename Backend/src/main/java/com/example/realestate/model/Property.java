@@ -6,33 +6,34 @@ import jakarta.persistence.*;
 @Table(name = "properties")
 public class Property {
 
-    @Id
+	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
     @JoinColumn(name = "seller_id", nullable = false)
-    private User seller;  
+    private User seller;
+
 
     private String propertyTitle;
     private String description;
     private String location;
     private Double price;
     private Double discountedPrice;
-    private int discountPercent;
+    private Double discountPercent;
     private String propertyType;
     private String imageUrl;
     private String propertyCategory;
     private int numberOfBedrooms;
     private int numberOfBathrooms;
-    private int squareFeet;
+    private Double squareFeet;
 
     // Constructors
     public Property() {}
 
     public Property(Long id, User seller, String propertyTitle, String description, String location, Double price,
-                    Double discountedPrice, int discountPercent, String propertyType, String imageUrl,
-                    String propertyCategory, int numberOfBedrooms, int numberOfBathrooms, int squareFeet) {
+                    Double discountedPrice, Double discountPercent, String propertyType, String imageUrl,
+                    String propertyCategory, int numberOfBedrooms, int numberOfBathrooms, Double squareFeet) {
         this.id = id;
         this.seller = seller;
         this.propertyTitle = propertyTitle;
@@ -106,11 +107,11 @@ public class Property {
         this.discountedPrice = discountedPrice;
     }
 
-    public int getDiscountPercent() {
+    public Double getDiscountPercent() {
         return discountPercent;
     }
 
-    public void setDiscountPercent(int discountPercent) {
+    public void setDiscountPercent(Double discountPercent) {
         this.discountPercent = discountPercent;
     }
 
@@ -154,11 +155,11 @@ public class Property {
         this.numberOfBathrooms = numberOfBathrooms;
     }
 
-    public int getSquareFeet() {
+    public Double getSquareFeet() {
         return squareFeet;
     }
 
-    public void setSquareFeet(int squareFeet) {
+    public void setSquareFeet(Double squareFeet) {
         this.squareFeet = squareFeet;
     }
 }
