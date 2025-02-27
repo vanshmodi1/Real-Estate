@@ -1,6 +1,16 @@
 import { useState, useEffect } from "react";
-import { Box, Typography, Card, CardContent, Button, Snackbar, Alert, TextField, Grid } from "@mui/material";
-import { Link } from "react-router-dom"; // Import Link
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Button,
+  Snackbar,
+  Alert,
+  TextField,
+  Grid,
+} from "@mui/material";
+import { Link } from "react-router-dom";
 
 const Buy = () => {
   const [properties, setProperties] = useState([]);
@@ -12,7 +22,7 @@ const Buy = () => {
   const [priceSearch, setPriceSearch] = useState("");
   const [locationSearch, setLocationSearch] = useState("");
 
-  const token = localStorage.getItem("token"); // Retrieve token from localStorage
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     if (!token) {
@@ -24,28 +34,27 @@ const Buy = () => {
 
     const fetchProperties = async () => {
       try {
-        const response = await fetch("http://localhost:9090/property/type/BUY", {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch properties");
-        }
+        const response = await fetch(
+          "http://localhost:9090/api/properties/type/BUY",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         const data = await response.json();
-        if (data.error) {
-          setSnackbarMessage(data.message || "Error fetching properties.");
-          setSnackbarSeverity("error");
-          setSnackbarOpen(true);
-        } else {
-          setProperties(data); // Assuming response returns an array of properties
-          setFilteredProperties(data);
+
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to fetch properties");
         }
+
+        console.log("Fetched properties:", data); // Debugging Log
+        setProperties(data);
+        setFilteredProperties(data);
       } catch (error) {
-        console.error(error);
+        console.error("Fetch error:", error);
         setSnackbarMessage("An error occurred while fetching properties.");
         setSnackbarSeverity("error");
         setSnackbarOpen(true);
@@ -58,7 +67,9 @@ const Buy = () => {
   const handleSearchChange = () => {
     const filtered = properties.filter((property) => {
       return (
-        property.propertyName.toLowerCase().includes(propertyNameSearch.toLowerCase()) &&
+        property.propertyTitle.toLowerCase().includes(
+          propertyNameSearch.toLowerCase()
+        ) &&
         property.price.toString().includes(priceSearch) &&
         property.location.toLowerCase().includes(locationSearch.toLowerCase())
       );
@@ -68,20 +79,18 @@ const Buy = () => {
   };
 
   useEffect(() => {
-    handleSearchChange(); // Filter properties every time any search field changes
+    handleSearchChange();
   }, [propertyNameSearch, priceSearch, locationSearch]);
 
   const handleSnackbarClose = () => setSnackbarOpen(false);
 
-  const handleViewDetails = (propertyId) => {
-    localStorage.setItem("propertyId", propertyId); // Store propertyId in localStorage
-  };
-
   return (
     <Box sx={{ padding: 2 }}>
-      <Typography variant="h4" gutterBottom>Available Properties for Sale</Typography>
+      <Typography variant="h4" gutterBottom>
+        Available Properties for Sale
+      </Typography>
 
-      {/* Search Bar Sections */}
+      {/* Search Filters */}
       <Box sx={{ display: "flex", gap: 2, marginBottom: 2 }}>
         <TextField
           label="Search by Property Name"
@@ -103,55 +112,49 @@ const Buy = () => {
         />
       </Box>
 
+      {/* Property List */}
       {filteredProperties.length > 0 ? (
-        <Grid container spacing={2} justifyContent="space-between">
+        <Grid container spacing={2}>
           {filteredProperties.map((property) => (
             <Grid item xs={12} sm={6} md={3} key={property.id}>
-              <Card sx={{
-                maxWidth: 345,
-                transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                "&:hover": { transform: "scale(1.05)", boxShadow: 6 },
-                borderRadius: 2,
-                border: "1px solid #ddd"
-              }}>
+              <Card
+                sx={{
+                  maxWidth: 345,
+                  transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                  "&:hover": { transform: "scale(1.05)", boxShadow: 6 },
+                  borderRadius: 2,
+                  border: "1px solid #ddd",
+                }}
+              >
                 <CardContent>
-                  {/* Display Image */}
-                  {property.image && (
+                  {property.imageUrl && (
                     <img
-                      src={property.image}
-                      alt={property.propertyName}
+                      src={property.imageUrl}
+                      alt={property.propertyTitle}
                       style={{
                         width: "100%",
-                        height: "200px", // Fixed height for consistent image size
-                        objectFit: "cover", // Ensures image is not distorted
+                        height: "200px",
+                        objectFit: "cover",
                         marginBottom: 10,
-                        border: "2px solid #ddd", // Adding border around images
-                        borderRadius: "8px", // Optional: rounding the image corners
+                        border: "2px solid #ddd",
+                        borderRadius: "8px",
                       }}
                     />
                   )}
 
-                  <Typography variant="h6" sx={{ marginBottom: 1 }}>
-                    {property.propertyName}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 1 }}>
+                  <Typography variant="h6">{property.propertyTitle}</Typography>
+                  <Typography variant="body2" color="textSecondary">
                     {property.location}
                   </Typography>
-                  <Typography variant="body1" color="textPrimary" sx={{ marginBottom: 1 }}>
-                    Price: Rs {property.price}
+                  <Typography variant="body1" color="textPrimary">
+                    Price: Rs {property.price.toLocaleString()}
                   </Typography>
-                  <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 2 }}>
+                  <Typography variant="body2" color="textSecondary">
                     {property.description}
                   </Typography>
 
-                  {/* View Details Button */}
-                  <Link to="/viewdetails">
-                    <Button 
-                      variant="contained" 
-                      color="primary" 
-                      sx={{ marginTop: 2 }} 
-                      onClick={() => handleViewDetails(property.id)} // Save propertyId before navigation
-                    >
+                  <Link to={`/viewdetails/${property.id}`}>
+                    <Button variant="contained" color="primary" sx={{ marginTop: 2 }}>
                       View Details
                     </Button>
                   </Link>
@@ -161,11 +164,23 @@ const Buy = () => {
           ))}
         </Grid>
       ) : (
-        <Typography variant="h6" color="textSecondary">No properties found matching the search criteria.</Typography>
+        <Typography variant="h6" color="textSecondary">
+          No properties found matching the search criteria.
+        </Typography>
       )}
 
-      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: "top", horizontal: "center" }}>
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
+      {/* Snackbar for Error Handling */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
           {snackbarMessage}
         </Alert>
       </Snackbar>

@@ -1,31 +1,56 @@
 package com.example.realestate.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 @Entity
+@Table(name = "properties")
 public class Property {
 
-    @Id
+	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String description;
-    private String image;
-    private String location;
-    private Double price;
-    private String propertyName;
-    private String type;
 
     @ManyToOne
     @JoinColumn(name = "seller_id", nullable = false)
     private User seller;
 
-    // Getters and Setters
 
+    private String propertyTitle;
+    private String description;
+    private String location;
+    private Double price;
+    private Double discountedPrice;
+    private Double discountPercent;
+    private String propertyType;
+    private String imageUrl;
+    private String propertyCategory;
+    private int numberOfBedrooms;
+    private int numberOfBathrooms;
+    private Double squareFeet;
+
+    // Constructors
+    public Property() {}
+
+    public Property(Long id, User seller, String propertyTitle, String description, String location, Double price,
+                    Double discountedPrice, Double discountPercent, String propertyType, String imageUrl,
+                    String propertyCategory, int numberOfBedrooms, int numberOfBathrooms, Double squareFeet) {
+        this.id = id;
+        this.seller = seller;
+        this.propertyTitle = propertyTitle;
+        this.description = description;
+        this.location = location;
+        this.price = price;
+        this.discountedPrice = discountedPrice;
+        this.discountPercent = discountPercent;
+        this.propertyType = propertyType;
+        this.imageUrl = imageUrl;
+        this.propertyCategory = propertyCategory;
+        this.numberOfBedrooms = numberOfBedrooms;
+        this.numberOfBathrooms = numberOfBathrooms;
+        this.squareFeet = squareFeet;
+    }
+
+    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -34,20 +59,28 @@ public class Property {
         this.id = id;
     }
 
+    public User getSeller() {
+        return seller;
+    }
+
+    public void setSeller(User seller) {
+        this.seller = seller;
+    }
+
+    public String getPropertyTitle() {
+        return propertyTitle;
+    }
+
+    public void setPropertyTitle(String propertyTitle) {
+        this.propertyTitle = propertyTitle;
+    }
+
     public String getDescription() {
         return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
     }
 
     public String getLocation() {
@@ -66,27 +99,67 @@ public class Property {
         this.price = price;
     }
 
-    public String getPropertyName() {
-        return propertyName;
+    public Double getDiscountedPrice() {
+        return discountedPrice;
     }
 
-    public void setPropertyName(String propertyName) {
-        this.propertyName = propertyName;
+    public void setDiscountedPrice(Double discountedPrice) {
+        this.discountedPrice = discountedPrice;
     }
 
-    public String getType() {
-        return type;
+    public Double getDiscountPercent() {
+        return discountPercent;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setDiscountPercent(Double discountPercent) {
+        this.discountPercent = discountPercent;
     }
 
-    public User getSeller() {
-        return seller;
+    public String getPropertyType() {
+        return propertyType;
     }
 
-    public void setSeller(User seller) {
-        this.seller = seller;
+    public void setPropertyType(String propertyType) {
+        this.propertyType = propertyType;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getPropertyCategory() {
+        return propertyCategory;
+    }
+
+    public void setPropertyCategory(String propertyCategory) {
+        this.propertyCategory = propertyCategory;
+    }
+
+    public int getNumberOfBedrooms() {
+        return numberOfBedrooms;
+    }
+
+    public void setNumberOfBedrooms(int numberOfBedrooms) {
+        this.numberOfBedrooms = numberOfBedrooms;
+    }
+
+    public int getNumberOfBathrooms() {
+        return numberOfBathrooms;
+    }
+
+    public void setNumberOfBathrooms(int numberOfBathrooms) {
+        this.numberOfBathrooms = numberOfBathrooms;
+    }
+
+    public Double getSquareFeet() {
+        return squareFeet;
+    }
+
+    public void setSquareFeet(Double squareFeet) {
+        this.squareFeet = squareFeet;
     }
 }
