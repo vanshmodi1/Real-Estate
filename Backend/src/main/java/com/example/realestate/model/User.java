@@ -11,7 +11,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long seller_id;
+    private Long id;
 
     @NotBlank
     @Size(min = 2, max = 50)
@@ -30,6 +30,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -38,12 +39,8 @@ public class User {
 
     @PrePersist
     protected void onCreate() {
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
-        if (updatedAt == null) {
-            updatedAt = createdAt;
-        }
+        createdAt = LocalDateTime.now();
+        updatedAt = createdAt;
     }
 
     @PreUpdate
@@ -51,9 +48,13 @@ public class User {
         updatedAt = LocalDateTime.now();
     }
 
-    public User() {}
+    public User() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = this.createdAt;
+    }
 
     public User(String name, String email, String password, UserRole role) {
+        this();
         this.name = name;
         this.email = email;
         this.password = password;
@@ -62,11 +63,11 @@ public class User {
 
     // Getters and Setters
     public Long getId() {
-        return seller_id;
+        return id;
     }
 
     public void setId(Long id) {
-        this.seller_id = id;
+        this.id = id;
     }
 
     public String getName() {
@@ -105,15 +106,7 @@ public class User {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
     }
 }

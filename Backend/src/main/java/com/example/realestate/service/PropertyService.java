@@ -1,9 +1,7 @@
 package com.example.realestate.service;
 
 import com.example.realestate.model.Property;
-import com.example.realestate.model.User;
 import com.example.realestate.repository.PropertyRepository;
-import com.example.realestate.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,50 +13,34 @@ public class PropertyService {
     @Autowired
     private PropertyRepository propertyRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    // Add a new property
+    public Property addProperty(Property property) {
+        return propertyRepository.save(property);
+    }
 
-    public Property addProperty(Long sellerId, Property property) {
-        User seller = userRepository.findById(sellerId)
-                .orElseThrow(() -> new RuntimeException("Seller not found"));
+    // Get all properties
+    public List<Property> getAllProperties() {
+        return propertyRepository.findAll();
+    }
 
-        if (!seller.getRole().equals("SELLER")) {
-            throw new RuntimeException("User is not a seller");
+    // Get properties by type (RENT, BUY, SALE)
+    public List<Property> getPropertiesByType(String propertyType) {
+        return propertyRepository.findByPropertyType(propertyType);
+    }
+
+    // Update property type
+    public Property updatePropertyType(Long id, String newType) {
+        Property property = propertyRepository.findById(id).orElseThrow(
+                () -> new RuntimeException("Property not found with ID: " + id));
+        property.setPropertyType(newType);
+        return propertyRepository.save(property);
+    }
+
+    // **DELETE Property by ID**
+    public void deleteProperty(Long id) {
+        if (!propertyRepository.existsById(id)) {
+            throw new RuntimeException("Property with ID " + id + " not found.");
         }
-
-        property.setSeller(seller);
-        return propertyRepository.save(property);
-    }
-
-    public List<Property> getPropertiesBySeller(Long sellerId) {
-        return propertyRepository.findBySellerId(sellerId);
-    }
-
-    public Property getPropertyById(Long propertyId) {
-        return propertyRepository.findById(propertyId).orElse(null);
-    }
-
-    public Property updateProperty(Long propertyId, Property propertyDetails) {
-        Property property = propertyRepository.findById(propertyId)
-                .orElseThrow(() -> new RuntimeException("Property not found"));
-
-        property.setDescription(propertyDetails.getDescription());
-        property.setImage(propertyDetails.getImage());
-        property.setLocation(propertyDetails.getLocation());
-        property.setPrice(propertyDetails.getPrice());
-        property.setPropertyName(propertyDetails.getPropertyName());
-        property.setType(propertyDetails.getType());
-
-        return propertyRepository.save(property);
-    }
-
-    public void deleteProperty(Long propertyId) {
-        Property property = propertyRepository.findById(propertyId)
-                .orElseThrow(() -> new RuntimeException("Property not found"));
-        propertyRepository.delete(property);
-    }
-
-    public List<Property> getPropertiesByType(String type) {
-        return propertyRepository.findByType(type);
+        propertyRepository.deleteById(id);
     }
 }

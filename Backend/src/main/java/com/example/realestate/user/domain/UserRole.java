@@ -1,8 +1,8 @@
 package com.example.realestate.user.domain;
 
 public enum UserRole {
-
-	BUYER,
-	SELLER,
-	ADMIN
+    BUYER,
+    SELLER,
+    ADMIN,
+    AGENT
 }

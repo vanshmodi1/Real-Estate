@@ -24,7 +24,8 @@ public class AppConfig {
             .and()
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/register", "/login").permitAll() // Allow public access to these endpoints
-                .requestMatchers("/property/add/**", "/property/update/**", "/property/delete/**").authenticated() // Secure property management endpoints
+                .requestMatchers("/api/properties/add/**", "/api/properties/update/**", "/api/properties/delete/**").authenticated()
+ // Secure property management endpoints
                 .requestMatchers("/property/**").permitAll() // Allow access to other property-related endpoints
                 .anyRequest().authenticated() // Secure all other endpoints
             )

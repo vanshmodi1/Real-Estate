@@ -9,62 +9,42 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/property")
-@CrossOrigin(origins = "http://localhost:5173")
+@RequestMapping("/api/properties")
 public class PropertyController {
 
     @Autowired
     private PropertyService propertyService;
 
-    @PostMapping("/add/{sellerId}")
-    public ResponseEntity<Property> addProperty(@PathVariable Long sellerId, @RequestBody Property property) {
-        try {
-            Property savedProperty = propertyService.addProperty(sellerId, property);
-            return ResponseEntity.ok(savedProperty);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
-        }
+    // Add a new property
+    @PostMapping("/add")
+    public ResponseEntity<Property> addProperty(@RequestBody Property property) {
+        Property savedProperty = propertyService.addProperty(property);
+        return ResponseEntity.ok(savedProperty);
     }
 
-    @GetMapping("/seller/{sellerId}")
-    public ResponseEntity<List<Property>> getSellerProperties(@PathVariable Long sellerId) {
-        List<Property> properties = propertyService.getPropertiesBySeller(sellerId);
-        return ResponseEntity.ok(properties);
+    // Get all properties
+    @GetMapping("/all")
+    public ResponseEntity<List<Property>> getAllProperties() {
+        return ResponseEntity.ok(propertyService.getAllProperties());
     }
 
-    @GetMapping("/{propertyId}")
-    public ResponseEntity<Property> getPropertyById(@PathVariable Long propertyId) {
-        Property property = propertyService.getPropertyById(propertyId);
-        if (property != null) {
-            return ResponseEntity.ok(property);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    // Get properties by type (RENT, BUY, SALE)
+    @GetMapping("/type/{propertyType}")
+    public ResponseEntity<List<Property>> getPropertiesByType(@PathVariable String propertyType) {
+        return ResponseEntity.ok(propertyService.getPropertiesByType(propertyType));
     }
 
-    @PutMapping("/update/{propertyId}")
-    public ResponseEntity<Property> updateProperty(@PathVariable Long propertyId, @RequestBody Property property) {
-        try {
-            Property updatedProperty = propertyService.updateProperty(propertyId, property);
-            return ResponseEntity.ok(updatedProperty);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
-        }
+    // Update property type
+    @PutMapping("/updateType/{id}")
+    public ResponseEntity<Property> updatePropertyType(@PathVariable Long id, @RequestParam String newType) {
+        Property updatedProperty = propertyService.updatePropertyType(id, newType);
+        return ResponseEntity.ok(updatedProperty);
     }
 
-    @DeleteMapping("/delete/{propertyId}")
-    public ResponseEntity<Void> deleteProperty(@PathVariable Long propertyId) {
-        try {
-            propertyService.deleteProperty(propertyId);
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(500).build();
-        }
-    }
-
-    @GetMapping("/type/{type}")
-    public ResponseEntity<List<Property>> getPropertiesByType(@PathVariable String type) {
-        List<Property> properties = propertyService.getPropertiesByType(type);
-        return ResponseEntity.ok(properties);
+    // **DELETE Property by ID**
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteProperty(@PathVariable Long id) {
+        propertyService.deleteProperty(id);
+        return ResponseEntity.ok("Property with ID " + id + " deleted successfully.");
     }
 }
