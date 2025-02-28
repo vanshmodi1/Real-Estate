@@ -27,6 +27,7 @@ public class AppConfig {
                 .requestMatchers("/auth/register", "/auth/login").permitAll() // Public authentication endpoints
                 .requestMatchers("/api/properties/type/BUY").permitAll() // Allow public access to Buy properties
                 .requestMatchers("/property/**").permitAll() // Allow access to property listings
+                .requestMatchers("/uploads/**").permitAll()
                 .requestMatchers("/api/properties/add/**", "/api/properties/update/**", "/api/properties/delete/**").authenticated() // Secure property CRUD
                 .anyRequest().authenticated() // Secure all other endpoints
             )
