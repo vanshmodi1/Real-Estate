@@ -1,40 +1,31 @@
 package com.example.realestate.controllers;
 
-import com.example.realestate.exception.PropertyException;
-import com.example.realestate.exception.UserException;
 import com.example.realestate.model.Rating;
-import com.example.realestate.model.User;
-import com.example.realestate.request.RatingRequest;
 import com.example.realestate.service.RatingServices;
-import com.example.realestate.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
+import java.util.List;
 
 @RestController
-@RequestMapping("/ratings")
 public class RatingController {
 
     @Autowired
     private RatingServices ratingService;
 
-    @Autowired
-    private UserService userService;
+    // Existing GET endpoint
+    @GetMapping("/ratings")
+    public ResponseEntity<List<Rating>> getRatingsByUserId(@RequestParam Long userId) {
+        List<Rating> ratings = ratingService.getRatingsByUserId(userId);
+        return ResponseEntity.ok(ratings);
+    }
 
-    @PostMapping
-    public ResponseEntity<Rating> addRating(@RequestBody RatingRequest ratingRequest, @RequestParam Long userId) throws UserException, PropertyException {
-        // Fetch the user from the database
-        Optional<User> userOptional = userService.findUserById(userId);
-        if (userOptional.isEmpty()) {
-            throw new UserException("User not found with ID: " + userId);
-        }
-
-        User user = userOptional.get();
-
-        // Create and save the rating
-        Rating rating = ratingService.createRating(ratingRequest, user);
-        return ResponseEntity.ok(rating);
+    // New POST endpoint
+    @PostMapping("/ratings")
+    public ResponseEntity<Rating> createRating(@RequestBody Rating rating) {
+        Rating createdRating = ratingService.createRating(rating);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdRating);
     }
 }

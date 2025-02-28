@@ -27,12 +27,13 @@ public class AppConfig {
                 .requestMatchers("/auth/register", "/auth/login").permitAll() // Public authentication endpoints
                 .requestMatchers("/api/properties/type/BUY").permitAll() // Allow public access to Buy properties
                 .requestMatchers("/property/**").permitAll() // Allow access to property listings
-                .requestMatchers("/uploads/**").permitAll()
+                .requestMatchers("/uploads/**").permitAll() // Allow access to uploaded files
+                .requestMatchers("/ratings/**").permitAll() // Allow access to ratings endpoints
                 .requestMatchers("/api/properties/add/**", "/api/properties/update/**", "/api/properties/delete/**").authenticated() // Secure property CRUD
                 .anyRequest().authenticated() // Secure all other endpoints
             )
             .addFilterBefore(jwtFilter, BasicAuthenticationFilter.class) // Register JwtFilter
-            .httpBasic();
+            .httpBasic(); // Enable HTTP Basic authentication (optional)
 
         return http.build();
     }
@@ -44,15 +45,15 @@ public class AppConfig {
             config.setAllowedOrigins(Arrays.asList("http://localhost:5173")); // Allow frontend origin
             config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Allow these methods
             config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type")); // Allow specific headers
-            config.setAllowCredentials(true);
-            config.setExposedHeaders(Arrays.asList("Authorization"));
-            config.setMaxAge(3600L); // Cache CORS configuration
+            config.setAllowCredentials(true); // Allow credentials (e.g., cookies)
+            config.setExposedHeaders(Arrays.asList("Authorization")); // Expose Authorization header
+            config.setMaxAge(3600L); // Cache CORS configuration for 1 hour
             return config;
         };
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(); // Use BCrypt for password encoding
     }
 }
