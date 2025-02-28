@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Typography,
@@ -28,8 +28,8 @@ const Sell = () => {
     propertyType: "BUY",
     images: [],
   });
-
   const [error, setError] = useState(null);
+  const [sellerId, setSellerId] = useState(null); // Add sellerId state
 
   // Handle form input changes
   const handleChange = (event) => {
@@ -48,13 +48,23 @@ const Sell = () => {
     }));
   };
 
+  // Fetch seller ID (you might store it in localStorage or fetch from API)
+  useEffect(() => {
+    const id = localStorage.getItem("sellerId"); // Assuming you store the sellerId in localStorage
+    if (id) {
+      setSellerId(id);
+    } else {
+      setError("Seller ID not found. Please log in.");
+    }
+  }, []);
+
   // Handle form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError(null);
 
     const token = localStorage.getItem("token");
-    if (!token) {
+    if (!token || !sellerId) {
       setError("User not authenticated. Please log in.");
       return;
     }
@@ -67,6 +77,8 @@ const Sell = () => {
         data.append(key, formData[key]);
       }
     });
+
+    data.append("sellerId", sellerId); // Add sellerId to the form data
 
     try {
       const response = await fetch("http://localhost:9090/api/properties/add", {
@@ -94,16 +106,93 @@ const Sell = () => {
       </Typography>
       {error && <Alert severity="error">{error}</Alert>}
       <form onSubmit={handleSubmit}>
-        <TextField label="Title" name="propertyTitle" value={formData.propertyTitle} onChange={handleChange} fullWidth margin="normal" required />
-        <TextField label="Description" name="description" value={formData.description} onChange={handleChange} fullWidth margin="normal" multiline rows={4} required />
-        <TextField label="Price" name="price" type="number" value={formData.price} onChange={handleChange} fullWidth margin="normal" required />
-        <TextField label="Discounted Price" name="discountedPrice" type="number" value={formData.discountedPrice} onChange={handleChange} fullWidth margin="normal" />
-        <TextField label="Discount Percent" name="discountPercent" type="number" value={formData.discountPercent} onChange={handleChange} fullWidth margin="normal" />
-        <TextField label="Location" name="location" value={formData.location} onChange={handleChange} fullWidth margin="normal" required />
-        <TextField label="Number of Bedrooms" name="numberOfBedrooms" type="number" value={formData.numberOfBedrooms} onChange={handleChange} fullWidth margin="normal" required />
-        <TextField label="Number of Bathrooms" name="numberOfBathrooms" type="number" value={formData.numberOfBathrooms} onChange={handleChange} fullWidth margin="normal" required />
-        <TextField label="Square Feet" name="squareFeet" type="number" value={formData.squareFeet} onChange={handleChange} fullWidth margin="normal" required />
-        
+        <TextField
+          label="Title"
+          name="propertyTitle"
+          value={formData.propertyTitle}
+          onChange={handleChange}
+          fullWidth
+          margin="normal"
+          required
+        />
+        <TextField
+          label="Description"
+          name="description"
+          value={formData.description}
+          onChange={handleChange}
+          fullWidth
+          margin="normal"
+          multiline
+          rows={4}
+          required
+        />
+        <TextField
+          label="Price"
+          name="price"
+          type="number"
+          value={formData.price}
+          onChange={handleChange}
+          fullWidth
+          margin="normal"
+          required
+        />
+        <TextField
+          label="Discounted Price"
+          name="discountedPrice"
+          type="number"
+          value={formData.discountedPrice}
+          onChange={handleChange}
+          fullWidth
+          margin="normal"
+        />
+        <TextField
+          label="Discount Percent"
+          name="discountPercent"
+          type="number"
+          value={formData.discountPercent}
+          onChange={handleChange}
+          fullWidth
+          margin="normal"
+        />
+        <TextField
+          label="Location"
+          name="location"
+          value={formData.location}
+          onChange={handleChange}
+          fullWidth
+          margin="normal"
+          required
+        />
+        <TextField
+          label="Number of Bedrooms"
+          name="numberOfBedrooms"
+          type="number"
+          value={formData.numberOfBedrooms}
+          onChange={handleChange}
+          fullWidth
+          margin="normal"
+          required
+        />
+        <TextField
+          label="Number of Bathrooms"
+          name="numberOfBathrooms"
+          type="number"
+          value={formData.numberOfBathrooms}
+          onChange={handleChange}
+          fullWidth
+          margin="normal"
+          required
+        />
+        <TextField
+          label="Square Feet"
+          name="squareFeet"
+          type="number"
+          value={formData.squareFeet}
+          onChange={handleChange}
+          fullWidth
+          margin="normal"
+          required
+        />
         <FormControl fullWidth margin="normal">
           <InputLabel>Property Category</InputLabel>
           <Select name="propertyCategory" value={formData.propertyCategory} onChange={handleChange} required>
