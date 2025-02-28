@@ -11,8 +11,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
-import jakarta.servlet.http.HttpServletRequest;
 import com.example.realestate.security.JwtFilter; // Import your JwtFilter
+import jakarta.servlet.http.HttpServletRequest;
 
 @Configuration
 public class AppConfig {
@@ -24,9 +24,10 @@ public class AppConfig {
             .csrf(csrf -> csrf.disable()) // Disable CSRF for APIs
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless authentication
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/auth/register", "/auth/login").permitAll() // Public endpoints
-                .requestMatchers("/api/properties/add/**", "/api/properties/update/**", "/api/properties/delete/**").authenticated() // Secure property endpoints
+                .requestMatchers("/auth/register", "/auth/login").permitAll() // Public authentication endpoints
+                .requestMatchers("/api/properties/type/BUY").permitAll() // Allow public access to Buy properties
                 .requestMatchers("/property/**").permitAll() // Allow access to property listings
+                .requestMatchers("/api/properties/add/**", "/api/properties/update/**", "/api/properties/delete/**").authenticated() // Secure property CRUD
                 .anyRequest().authenticated() // Secure all other endpoints
             )
             .addFilterBefore(jwtFilter, BasicAuthenticationFilter.class) // Register JwtFilter
