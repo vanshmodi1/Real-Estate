@@ -1,41 +1,31 @@
 package com.example.realestate.model;
 
 import java.time.LocalDateTime;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
+@Table(name = "review")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Review {
-	
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
-	
-	private String review;
-	
-	@ManyToOne
-	@JoinColumn(name="property_id")
-	@JsonIgnore
-	private Property property;
 
-	@ManyToOne
-	@JoinColumn(name="user_id")
-	private User user;
-	
-	private LocalDateTime createdAt;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "property_id", nullable = false)
+    private Property property;
+
+    @Column(name = "review_text", columnDefinition = "TEXT", nullable = false)
+    private String reviewText;
+
+    private LocalDateTime createdAt = LocalDateTime.now();
 }

@@ -11,6 +11,8 @@ import {
   CircularProgress,
   IconButton,
   Box,
+  TextField,
+  MenuItem,
 } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
@@ -23,6 +25,13 @@ const Buy = () => {
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState({
+    checkInDate: "",
+    checkOutDate: "",
+    minPrice: "",
+    maxPrice: "",
+    location: "",
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -72,6 +81,41 @@ const Buy = () => {
     navigate("/wishlist");
   };
 
+  const handleFilterChange = (event) => {
+    const { name, value } = event.target;
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [name]: value,
+    }));
+  };
+
+  const filteredProperties = properties.filter((property) => {
+    const { checkInDate, checkOutDate, minPrice, maxPrice, location } = filters;
+    const propertyPrice = property.price;
+
+    // Date validation
+    const isCheckInDateValid =
+      !checkInDate || new Date(property.availableFrom) >= new Date(checkInDate);
+    const isCheckOutDateValid =
+      !checkOutDate || new Date(property.availableTo) <= new Date(checkOutDate);
+
+    // Price validation
+    const isMinPriceValid = !minPrice || propertyPrice >= parseFloat(minPrice);
+    const isMaxPriceValid = !maxPrice || propertyPrice <= parseFloat(maxPrice);
+
+    // Location validation
+    const isLocationValid =
+      !location || property.location.toLowerCase().includes(location.toLowerCase());
+
+    return (
+      isCheckInDateValid &&
+      isCheckOutDateValid &&
+      isMinPriceValid &&
+      isMaxPriceValid &&
+      isLocationValid
+    );
+  });
+
   return (
     <Container>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
@@ -88,11 +132,62 @@ const Buy = () => {
         </Button>
       </Box>
 
+      {/* Filter UI */}
+      <Box mb={3} display="flex" gap={2} alignItems="center">
+        <TextField
+          label="Check-In Date"
+          type="date"
+          name="checkInDate"
+          value={filters.checkInDate}
+          onChange={handleFilterChange}
+          InputLabelProps={{
+            shrink: true,
+          }}
+        />
+        <TextField
+          label="Check-Out Date"
+          type="date"
+          name="checkOutDate"
+          value={filters.checkOutDate}
+          onChange={handleFilterChange}
+          InputLabelProps={{
+            shrink: true,
+          }}
+        />
+        <TextField
+          label="Min Price"
+          type="number"
+          name="minPrice"
+          value={filters.minPrice}
+          onChange={handleFilterChange}
+        />
+        <TextField
+          label="Max Price"
+          type="number"
+          name="maxPrice"
+          value={filters.maxPrice}
+          onChange={handleFilterChange}
+        />
+        <TextField
+          label="Location"
+          name="location"
+          value={filters.location}
+          onChange={handleFilterChange}
+          select
+          sx={{ minWidth: 120 }}
+        >
+          <MenuItem value="">All</MenuItem>
+          <MenuItem value="location1">Location 1</MenuItem>
+          <MenuItem value="location2">Location 2</MenuItem>
+          {/* Add more locations as needed */}
+        </TextField>
+      </Box>
+
       {loading && <CircularProgress />}
       {error && <Typography color="error">{error}</Typography>}
 
       <Grid container spacing={3}>
-        {properties.map((property) => (
+        {filteredProperties.map((property) => (
           <Grid item key={property.id} xs={12} sm={6} md={4}>
             <Card
               sx={{
@@ -136,21 +231,6 @@ const Buy = () => {
                 </Typography>
                 <Typography variant="body2" color="textSecondary">
                   Discounted Price: ₹{property.discountedPrice.toLocaleString("en-IN")}
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Location: {property.location}
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Category: {property.propertyCategory}
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Bedrooms: {property.numberOfBedrooms}
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Bathrooms: {property.numberOfBathrooms}
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Area: {property.squareFeet} sq ft
                 </Typography>
                 <Box display="flex" gap={2} mt={2}>
                   <Button
