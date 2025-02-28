@@ -1,5 +1,6 @@
 package com.example.realestate.service;
 
+import com.example.realestate.exception.PropertyException;
 import com.example.realestate.model.Property;
 import com.example.realestate.repository.PropertyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,11 @@ public class PropertyService {
 
         property.setImageUrls(imageUrls);
         return propertyRepository.save(property);
+    }
+
+    public Property findPropertyById(Long id) throws PropertyException {
+        return propertyRepository.findById(id)
+                .orElseThrow(() -> new PropertyException("Property not found with ID: " + id));
     }
 
     public Optional<Property> getPropertyById(Long id) {

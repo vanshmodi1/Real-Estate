@@ -1,59 +1,66 @@
-import { useState, useEffect } from "react";
-import { Box, Typography, Grid, Card, CardContent, Button } from "@mui/material";
-import { useNavigate } from "react-router-dom"; // Import useNavigate hook
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Container,
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+  CardMedia,
+  Button,
+} from "@mui/material";
 
 const Wishlist = () => {
   const [wishlist, setWishlist] = useState([]);
-  const navigate = useNavigate(); // Initialize useNavigate hook
 
   useEffect(() => {
-    const storedWishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
-    setWishlist(storedWishlist);
+    const storedWishlist = localStorage.getItem("wishlist");
+    if (storedWishlist) {
+      setWishlist(JSON.parse(storedWishlist));
+    }
   }, []);
 
+  const navigate = useNavigate();
 
-
-  // Remove the property with the given id from the wishlist
-  const handleRemoveFromWishlist = (id) => {
-    // Filter out the property with the clicked propertyId (id)
-    const updatedWishlist = wishlist.filter((property) => property.id !== id);
-    setWishlist(updatedWishlist); // Update state to reflect changes
-    localStorage.setItem("wishlist", JSON.stringify(updatedWishlist)); // Update localStorage
+  const handleRemoveFromWishlist = (propertyId) => {
+    const updatedWishlist = wishlist.filter((property) => property.id !== propertyId);
+    setWishlist(updatedWishlist);
+    localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
   };
 
   return (
-    <Box sx={{ padding: 2, marginTop: "60px" }}>
-      <Typography variant="h4" sx={{ marginBottom: 2 }}>
-        My Wishlist
+    <Container>
+      <Typography variant="h4" gutterBottom>
+        Your Wishlist
       </Typography>
-      <Grid container spacing={4}>
+
+      <Button variant="contained" color="primary" onClick={() => navigate("/")}>
+        Back to Properties
+      </Button>
+
+      <Grid container spacing={3} style={{ marginTop: "20px" }}>
         {wishlist.length === 0 ? (
-          <Typography variant="h6" color="textSecondary" margin={"35px"}>
-            Your wishlist is empty.
-          </Typography>
+          <Typography>No properties in wishlist.</Typography>
         ) : (
           wishlist.map((property) => (
-            <Grid item xs={12} sm={4} key={property.id}>
-              <Card sx={{ width: "100%" }}>
+            <Grid item key={property.id} xs={12} sm={6} md={4}>
+              <Card>
+                <CardMedia
+                  component="img"
+                  height="140"
+                  image={property.imageUrls?.[0] || "default-image-url.jpg"}
+                  alt={property.propertyTitle}
+                />
                 <CardContent>
-                  <Typography variant="h5">{property.propertyName}</Typography>
-                  <Typography variant="body2">Price: Rs {property.price}</Typography>
-                  <Typography variant="body1">Location: {property.location}</Typography>
-                  <Typography variant="body2">{property.description}</Typography>
+                  <Typography variant="h6">{property.propertyTitle}</Typography>
+                  <Typography variant="body1">Price: ₹{property.price.toLocaleString("en-IN")}</Typography>
+                  <Typography variant="body2">Location: {property.location}</Typography>
+
                   <Button
                     variant="contained"
-                    color="primary"
-                    sx={{ marginTop: 2 }}
-                    onClick={() => navigate("/viewdetails")} // Use property.id to navigate
-                  >
-            
-                    View Property
-                  </Button>
-                  <Button
-                    variant="outlined"
                     color="secondary"
-                    sx={{ marginTop: 2, marginLeft: 1 }}
-                    onClick={() => handleRemoveFromWishlist(property.id)} // Remove property based on its id
+                    onClick={() => handleRemoveFromWishlist(property.id)}
+                    style={{ marginTop: "10px" }}
                   >
                     Remove from Wishlist
                   </Button>
@@ -63,7 +70,7 @@ const Wishlist = () => {
           ))
         )}
       </Grid>
-    </Box>
+    </Container>
   );
 };
 

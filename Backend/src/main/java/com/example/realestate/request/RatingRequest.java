@@ -1,10 +1,10 @@
 package com.example.realestate.request;
 
 public class RatingRequest {
-
     private Long propertyId;
     private double rating;
 
+    // Getters and Setters
     public Long getPropertyId() {
         return propertyId;
     }

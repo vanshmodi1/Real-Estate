@@ -66,7 +66,11 @@ public class User {
         return id;
     }
 
-    public String getUserId() { // Added this method
+    public void setId(Long id) { // Added this method
+        this.id = id;
+    }
+
+    public String getUserId() {
         return String.valueOf(id); // Ensure it's returned as a String
     }
 
@@ -90,7 +94,7 @@ public class User {
         return password;
     }
 
-    public void setPassword(String password) { // Added this method
+    public void setPassword(String password) {
         this.password = password;
     }
 
@@ -98,7 +102,7 @@ public class User {
         return role;
     }
 
-    public void setRole(UserRole role) { // Added this method
+    public void setRole(UserRole role) {
         this.role = role;
     }
 
@@ -108,6 +112,9 @@ public class User {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
-    
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) { // Added this method
+        this.updatedAt = updatedAt;
     }
 }

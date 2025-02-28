@@ -1,15 +1,12 @@
 package com.example.realestate.repository;
 
+import com.example.realestate.model.Review;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
 import java.util.List;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-
-import com.example.realestate.model.Review;
-
+@Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
-
-    @Query("SELECT r FROM Review r WHERE r.property.id = :propertyId")
-    List<Review> getAllPropertyReviews(@Param("propertyId") Long propertyId);
+    List<Review> findByPropertyId(Long propertyId);
 }

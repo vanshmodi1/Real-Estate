@@ -3,9 +3,7 @@ package com.example.realestate.service;
 import com.example.realestate.model.User;
 import com.example.realestate.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.util.Optional;
 
 @Service
@@ -14,15 +12,8 @@ public class UserServiceImplementation implements UserService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
     @Override
     public User saveUser(User user) {
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already registered");
-        }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
@@ -33,7 +24,8 @@ public class UserServiceImplementation implements UserService {
 
     @Override
     public boolean validatePassword(String rawPassword, String encodedPassword) {
-        return passwordEncoder.matches(rawPassword, encodedPassword);
+        // Implement password validation logic (e.g., using BCryptPasswordEncoder)
+        return rawPassword.equals(encodedPassword); // Replace with proper password validation
     }
 
     @Override

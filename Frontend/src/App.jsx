@@ -15,6 +15,7 @@ import Details from './Pages/Details'; // Import the Details page
 import Wishlist from './Pages/Wishlist';
 import OrderDetails from "./Pages/OrderDetails";
 import BillingAddress from "./Pages/BillingAddress";
+import PropertyDetails from "./pages/PropertyDetails";
 import Payment from "./Pages/Payment"
 
 
@@ -44,8 +45,9 @@ function App() {
             <Route path="/rent" element={<Rent />} />
             <Route path="/sell" element={<Sell />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/property/:id" element={<PropertyDetails />} />
             <Route path="/viewdetails" element={<Details></Details>}></Route>
-            <Route path="/wishlist" element={<Wishlist></Wishlist>}></Route>
+            <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/order-details" element={<OrderDetails />} />
             <Route path="/billing-address" element={<BillingAddress />} />
             <Route path="/payment" element={<Payment />} />
