@@ -6,9 +6,9 @@ import com.example.realestate.repository.UserRepository;
 import com.example.realestate.request.LoginRequest;
 import com.example.realestate.response.AuthResponse;
 import com.example.realestate.security.JwtUtil;
+import com.example.realestate.user.domain.UserRole;
 
 import jakarta.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -43,29 +43,31 @@ public class AuthController {
         newUser.setPassword(passwordEncoder.encode(user.getPassword()));
         newUser.setRole(user.getRole());
 
+
+
         userRepository.save(newUser);
 
-        // Generate JWT token
-        String token = jwtUtil.generateToken(user.getEmail());
+        // Generate JWT token with userId
+        String token = jwtUtil.generateToken(newUser.getUserId(), newUser.getEmail());
 
-        return ResponseEntity.ok(new AuthResponse(token, true));
+        // Create response
+        AuthResponse authResponse = new AuthResponse(token, true, newUser);
+
+        return ResponseEntity.ok(authResponse);
     }
 
-    // Authenticate a user
+    // Authenticate a user (Login)
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> loginUser(@Valid @RequestBody LoginRequest loginRequest) {
-        // Find user by email
         User user = userRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
 
-        // Validate password
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new BadCredentialsException("Invalid email or password");
         }
 
-        // Generate JWT token
-        String token = jwtUtil.generateToken(user.getEmail());
+        String token = jwtUtil.generateToken(user.getUserId(), user.getEmail());
 
-        return ResponseEntity.ok(new AuthResponse(token, true));
+        return ResponseEntity.ok(new AuthResponse(token, true, user));
     }
 }

@@ -3,6 +3,7 @@ package com.example.realestate.model;
 import com.example.realestate.user.domain.UserRole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -29,7 +30,6 @@ public class User {
     @NotNull
     @Enumerated(EnumType.STRING)
     private UserRole role;
-
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -66,8 +66,8 @@ public class User {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public String getUserId() { // Added this method
+        return String.valueOf(id); // Ensure it's returned as a String
     }
 
     public String getName() {
@@ -90,7 +90,7 @@ public class User {
         return password;
     }
 
-    public void setPassword(String password) {
+    public void setPassword(String password) { // Added this method
         this.password = password;
     }
 
@@ -98,7 +98,7 @@ public class User {
         return role;
     }
 
-    public void setRole(UserRole role) {
+    public void setRole(UserRole role) { // Added this method
         this.role = role;
     }
 
@@ -108,5 +108,6 @@ public class User {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    
     }
 }

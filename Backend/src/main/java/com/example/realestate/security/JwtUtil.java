@@ -15,9 +15,10 @@ public class JwtUtil {
     private final long EXPIRATION_TIME = 864_000_000; // 10 days in milliseconds
 
     // Generate JWT token
-    public String generateToken(String username) {
+    public String generateToken(String userId, String username) {
         return Jwts.builder()
                 .setSubject(username)
+                .claim("userId", userId) // Ensure userId is included
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(SignatureAlgorithm.HS512, SECRET_KEY)
@@ -35,6 +36,11 @@ public class JwtUtil {
         return extractClaim(token, Claims::getSubject);
     }
 
+    // Extract userId from JWT token
+    public String extractUserId(String token) {
+        return extractClaim(token, claims -> claims.get("userId", String.class));
+    }
+
     // Extract expiration date from JWT token
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
@@ -48,7 +54,10 @@ public class JwtUtil {
 
     // Extract all claims from JWT token
     private Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+        return Jwts.parser()
+                .setSigningKey(SECRET_KEY)
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     // Check if the token is expired

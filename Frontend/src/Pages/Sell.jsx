@@ -29,7 +29,7 @@ const Sell = () => {
     images: [],
   });
   const [error, setError] = useState(null);
-  const [sellerId, setSellerId] = useState(null); // Add sellerId state
+  const [sellerId, setSellerId] = useState(null); // Store seller ID
 
   // Handle form input changes
   const handleChange = (event) => {
@@ -48,11 +48,12 @@ const Sell = () => {
     }));
   };
 
-  // Fetch seller ID (you might store it in localStorage or fetch from API)
+  // Fetch seller ID from local storage
   useEffect(() => {
-    const id = localStorage.getItem("sellerId"); // Assuming you store the sellerId in localStorage
+    const id = localStorage.getItem("id"); // Ensure correct key
+    console.log("Retrieved seller ID:", id); // Debugging log
     if (id) {
-      setSellerId(id);
+      setSellerId(Number(id));
     } else {
       setError("Seller ID not found. Please log in.");
     }
@@ -78,7 +79,7 @@ const Sell = () => {
       }
     });
 
-    data.append("sellerId", sellerId); // Add sellerId to the form data
+    data.append("sellerId", sellerId); // Ensure seller ID is sent
 
     try {
       const response = await fetch("http://localhost:9090/api/properties/add", {

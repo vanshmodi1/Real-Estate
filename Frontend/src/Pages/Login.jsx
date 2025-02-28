@@ -4,7 +4,7 @@ import { Button, TextField, Typography, Box, Paper, CircularProgress } from "@mu
 
 const loginUser = async (email, password) => {
   try {
-    const response = await fetch("http://localhost:9090/login", {
+    const response = await fetch("http://localhost:9090/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -12,24 +12,19 @@ const loginUser = async (email, password) => {
       body: JSON.stringify({ email, password }),
     });
 
-    const data = await response.json();
-
     if (!response.ok) {
-      throw new Error(data.message || "Login failed");
+      const errorData = await response.json().catch(() => ({ message: "Invalid credentials" }));
+      throw new Error(errorData.message);
     }
 
-    return data;
+    return await response.json();
   } catch (error) {
     return { error: error.message };
   }
 };
 
 const Login = () => {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -49,7 +44,6 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validateForm()) return;
 
     setLoading(true);
@@ -60,25 +54,20 @@ const Login = () => {
     if (response.error) {
       setError(response.error);
     } else {
-      localStorage.setItem("token", response.token);
-      localStorage.setItem("role", response.user.role);
-      localStorage.setItem("id", response.user.id);
-      localStorage.setItem("username", response.user.name);
+      const { token, user } = response;
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", user.role);
+      localStorage.setItem("id", user.id);
+      localStorage.setItem("username", user.name);
 
-      switch (response.user.role) {
-        case "ADMIN":
-          navigate("/admin");
-          break;
-        case "BUYER":
-          navigate("/buy");
-          break;
-        case "SELLER":
-        case "AGENT":
-          navigate("/sell");
-          break;
-        default:
-          navigate("/");
-      }
+      const roleRedirects = {
+        ADMIN: "/admin",
+        BUYER: "/buy",
+        SELLER: "/sell",
+        AGENT: "/sell",
+      };
+
+      navigate(roleRedirects[user.role] || "/");
     }
 
     setLoading(false);
@@ -113,14 +102,7 @@ const Login = () => {
             helperText={errors.password}
             margin="normal"
           />
-          <Button
-            fullWidth
-            variant="contained"
-            color="primary"
-            sx={{ mt: 2 }}
-            type="submit"
-            disabled={loading}
-          >
+          <Button fullWidth variant="contained" color="primary" sx={{ mt: 2 }} type="submit" disabled={loading}>
             {loading ? <CircularProgress size={24} /> : "Login"}
           </Button>
         </form>

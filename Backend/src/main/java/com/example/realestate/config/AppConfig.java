@@ -12,7 +12,6 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import jakarta.servlet.http.HttpServletRequest;
-
 import com.example.realestate.security.JwtFilter; // Import your JwtFilter
 
 @Configuration
@@ -20,39 +19,34 @@ public class AppConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
+        http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Apply CORS config
+            .csrf(csrf -> csrf.disable()) // Disable CSRF for APIs
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless authentication
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/register", "/login").permitAll() // Allow public access to these endpoints
-                .requestMatchers("/api/properties/add/**", "/api/properties/update/**", "/api/properties/delete/**").authenticated()
- // Secure property management endpoints
-                .requestMatchers("/property/**").permitAll() // Allow access to other property-related endpoints
+                .requestMatchers("/auth/register", "/auth/login").permitAll() // Public endpoints
+                .requestMatchers("/api/properties/add/**", "/api/properties/update/**", "/api/properties/delete/**").authenticated() // Secure property endpoints
+                .requestMatchers("/property/**").permitAll() // Allow access to property listings
                 .anyRequest().authenticated() // Secure all other endpoints
             )
             .addFilterBefore(jwtFilter, BasicAuthenticationFilter.class) // Register JwtFilter
-            .csrf().disable()
-            .cors().configurationSource(new CorsConfigurationSource() {
-                @Override
-                public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-                    CorsConfiguration cfg = new CorsConfiguration();
-
-                    // Restrict to specific origins in production
-                    cfg.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
-
-                    // Allow necessary HTTP methods & headers
-                    cfg.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                    cfg.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
-
-                    cfg.setAllowCredentials(true);
-                    cfg.setExposedHeaders(Arrays.asList("Authorization"));
-                    cfg.setMaxAge(3600L);
-                    return cfg;
-                }
-            })
-            .and()
             .httpBasic();
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        return request -> {
+            CorsConfiguration config = new CorsConfiguration();
+            config.setAllowedOrigins(Arrays.asList("http://localhost:5173")); // Allow frontend origin
+            config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Allow these methods
+            config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type")); // Allow specific headers
+            config.setAllowCredentials(true);
+            config.setExposedHeaders(Arrays.asList("Authorization"));
+            config.setMaxAge(3600L); // Cache CORS configuration
+            return config;
+        };
     }
 
     @Bean
