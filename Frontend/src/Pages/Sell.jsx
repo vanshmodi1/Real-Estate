@@ -29,7 +29,7 @@ const Sell = () => {
     images: [],
   });
   const [error, setError] = useState(null);
-  const [sellerId, setSellerId] = useState(null); // Store seller ID
+  const [sellerId, setSellerId] = useState(null);
 
   // Handle form input changes
   const handleChange = (event) => {
@@ -50,8 +50,8 @@ const Sell = () => {
 
   // Fetch seller ID from local storage
   useEffect(() => {
-    const id = localStorage.getItem("id"); // Ensure correct key
-    console.log("Retrieved seller ID:", id); // Debugging log
+    const id = localStorage.getItem("id");
+    console.log("Retrieved seller ID:", id);
     if (id) {
       setSellerId(Number(id));
     } else {
@@ -79,7 +79,7 @@ const Sell = () => {
       }
     });
 
-    data.append("sellerId", sellerId); // Ensure seller ID is sent
+    data.append("sellerId", sellerId);
 
     try {
       const response = await fetch("http://localhost:9090/api/properties/add", {
@@ -91,11 +91,13 @@ const Sell = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to list property. Please try again.");
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to list property. Please try again.");
       }
 
       navigate("/buy");
     } catch (error) {
+      console.error("Error submitting form:", error);
       setError(error.message);
     }
   };
@@ -107,6 +109,7 @@ const Sell = () => {
       </Typography>
       {error && <Alert severity="error">{error}</Alert>}
       <form onSubmit={handleSubmit}>
+        {/* Form fields */}
         <TextField
           label="Title"
           name="propertyTitle"

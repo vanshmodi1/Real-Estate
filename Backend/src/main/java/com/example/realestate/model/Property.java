@@ -1,19 +1,19 @@
 package com.example.realestate.model;
 
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "properties")
 public class Property {
 
-	@Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
     @JoinColumn(name = "seller_id", nullable = false)
     private User seller;
-
 
     private String propertyTitle;
     private String description;
@@ -22,17 +22,19 @@ public class Property {
     private Double discountedPrice;
     private Double discountPercent;
     private String propertyType;
-    private String imageUrl;
     private String propertyCategory;
     private int numberOfBedrooms;
     private int numberOfBathrooms;
     private Double squareFeet;
 
-    // Constructors
+    // ✅ Store images as a List of Strings (URLs)
+    @ElementCollection
+    private List<String> imageUrls;
+
     public Property() {}
 
     public Property(Long id, User seller, String propertyTitle, String description, String location, Double price,
-                    Double discountedPrice, Double discountPercent, String propertyType, String imageUrl,
+                    Double discountedPrice, Double discountPercent, String propertyType, List<String> imageUrls,
                     String propertyCategory, int numberOfBedrooms, int numberOfBathrooms, Double squareFeet) {
         this.id = id;
         this.seller = seller;
@@ -43,7 +45,7 @@ public class Property {
         this.discountedPrice = discountedPrice;
         this.discountPercent = discountPercent;
         this.propertyType = propertyType;
-        this.imageUrl = imageUrl;
+        this.imageUrls = imageUrls;
         this.propertyCategory = propertyCategory;
         this.numberOfBedrooms = numberOfBedrooms;
         this.numberOfBathrooms = numberOfBathrooms;
@@ -123,12 +125,12 @@ public class Property {
         this.propertyType = propertyType;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public List<String> getImageUrls() {
+        return imageUrls;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setImageUrls(List<String> imageUrls) {
+        this.imageUrls = imageUrls;
     }
 
     public String getPropertyCategory() {

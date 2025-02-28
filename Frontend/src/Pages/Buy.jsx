@@ -50,7 +50,6 @@ const Buy = () => {
           throw new Error(data.message || "Failed to fetch properties");
         }
 
-        console.log("Fetched properties:", data); // Debugging Log
         setProperties(data);
         setFilteredProperties(data);
       } catch (error) {
@@ -66,13 +65,10 @@ const Buy = () => {
 
   const handleSearchChange = () => {
     const filtered = properties.filter((property) => {
-      return (
-        property.propertyTitle.toLowerCase().includes(
-          propertyNameSearch.toLowerCase()
-        ) &&
-        property.price.toString().includes(priceSearch) &&
-        property.location.toLowerCase().includes(locationSearch.toLowerCase())
-      );
+      const matchesName = property.propertyTitle.toLowerCase().includes(propertyNameSearch.toLowerCase());
+      const matchesPrice = property.price.toString().includes(priceSearch);
+      const matchesLocation = property.location.toLowerCase().includes(locationSearch.toLowerCase());
+      return matchesName && matchesPrice && matchesLocation;
     });
 
     setFilteredProperties(filtered);
@@ -127,9 +123,9 @@ const Buy = () => {
                 }}
               >
                 <CardContent>
-                  {property.imageUrl && (
+                  {property.imageUrls && property.imageUrls.length > 0 && (
                     <img
-                      src={property.imageUrl}
+                      src={property.imageUrls[0]}
                       alt={property.propertyTitle}
                       style={{
                         width: "100%",
@@ -141,7 +137,6 @@ const Buy = () => {
                       }}
                     />
                   )}
-
                   <Typography variant="h6">{property.propertyTitle}</Typography>
                   <Typography variant="body2" color="textSecondary">
                     {property.location}
@@ -152,7 +147,6 @@ const Buy = () => {
                   <Typography variant="body2" color="textSecondary">
                     {property.description}
                   </Typography>
-
                   <Link to={`/viewdetails/${property.id}`}>
                     <Button variant="contained" color="primary" sx={{ marginTop: 2 }}>
                       View Details

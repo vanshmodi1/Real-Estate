@@ -3,12 +3,14 @@ package com.example.realestate.controllers;
 import com.example.realestate.model.Property;
 import com.example.realestate.model.User;
 import com.example.realestate.service.PropertyService;
+import com.example.realestate.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
+import java.util.Optional;
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/api/properties")
@@ -17,9 +19,13 @@ public class PropertyController {
     @Autowired
     private PropertyService propertyService;
 
-    // Add a new property with file uploads
-    @PostMapping("/add")
-    public ResponseEntity<Property> addProperty(
+    @Autowired
+    private UserRepository userRepository;
+
+    private static final Logger logger = Logger.getLogger(PropertyController.class.getName());
+
+    @PostMapping(value = "/add", consumes = {"multipart/form-data"})
+    public ResponseEntity<?> addProperty(
         @RequestParam("propertyTitle") String propertyTitle,
         @RequestParam("description") String description,
         @RequestParam("price") Double price,
@@ -31,9 +37,17 @@ public class PropertyController {
         @RequestParam("numberOfBathrooms") Integer numberOfBathrooms,
         @RequestParam("squareFeet") Double squareFeet,
         @RequestParam("propertyType") String propertyType,
-        @RequestParam("images") MultipartFile[] images,
-        @RequestParam("sellerId") Long sellerId // Ensure this parameter is included
+        @RequestParam("sellerId") Long sellerId,
+        @RequestPart(value = "images", required = false) MultipartFile[] images
     ) {
+        logger.info("Received request to add a new property");
+
+        Optional<User> sellerOptional = userRepository.findById(sellerId);
+        if (sellerOptional.isEmpty()) {
+            return ResponseEntity.badRequest().body("Seller with ID " + sellerId + " not found");
+        }
+        User seller = sellerOptional.get();
+
         Property property = new Property();
         property.setPropertyTitle(propertyTitle);
         property.setDescription(description);
@@ -46,42 +60,11 @@ public class PropertyController {
         property.setNumberOfBathrooms(numberOfBathrooms);
         property.setSquareFeet(squareFeet);
         property.setPropertyType(propertyType);
-
-        // Set the seller using the sellerId
-        User seller = new User();
-        seller.setId(sellerId);
         property.setSeller(seller);
 
-        // Handle file uploads (e.g., save files to a directory or cloud storage)
-        // You might want to add a method in PropertyService to handle file storage
+        Property savedProperty = propertyService.addProperty(property, images);
 
-        Property savedProperty = propertyService.addProperty(property);
+        logger.info("Property added successfully with ID: " + savedProperty.getId());
         return ResponseEntity.ok(savedProperty);
-    }
-
-    // Get all properties
-    @GetMapping("/all")
-    public ResponseEntity<List<Property>> getAllProperties() {
-        return ResponseEntity.ok(propertyService.getAllProperties());
-    }
-
-    // Get properties by type (RENT, BUY, SALE)
-    @GetMapping("/type/{propertyType}")
-    public ResponseEntity<List<Property>> getPropertiesByType(@PathVariable String propertyType) {
-        return ResponseEntity.ok(propertyService.getPropertiesByType(propertyType));
-    }
-
-    // Update property type
-    @PutMapping("/updateType/{id}")
-    public ResponseEntity<Property> updatePropertyType(@PathVariable Long id, @RequestParam String newType) {
-        Property updatedProperty = propertyService.updatePropertyType(id, newType);
-        return ResponseEntity.ok(updatedProperty);
-    }
-
-    // Delete property by ID
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteProperty(@PathVariable Long id) {
-        propertyService.deleteProperty(id);
-        return ResponseEntity.ok("Property with ID " + id + " deleted successfully.");
     }
 }
