@@ -89,7 +89,7 @@ const Payment = () => {
           }
         },
         prefill: {
-          name: "John Doe", // Replace with actual user details
+          name: "Rohan Das", // Replace with actual user details
           email: "john.doe@example.com",
           contact: "9999999999",
         },
