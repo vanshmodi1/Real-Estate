@@ -1,6 +1,7 @@
 package com.example.realestate.config;
 
 import java.util.Arrays;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,11 +12,13 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
 import com.example.realestate.security.JwtFilter; // Import your JwtFilter
-import jakarta.servlet.http.HttpServletRequest;
 
 @Configuration
-public class AppConfig {
+public class AppConfig implements WebMvcConfigurer {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
@@ -55,5 +58,13 @@ public class AppConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(); // Use BCrypt for password encoding
+    }
+
+    // Static file configuration to serve files from the upload directory
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // Configure static resource handler for serving uploaded files
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:D:/Excelr_Project/realestate_/Backend/uploads/");
     }
 }
