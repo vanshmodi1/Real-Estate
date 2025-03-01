@@ -64,7 +64,7 @@ const Payment = () => {
 
       // Open Razorpay payment modal
       const options = {
-        key: "rzp_test_rFwjZbQ2DbFLZt", // Replace with actual Razorpay Key ID
+        key: "rzp_test_rFwjZbQ2DbFLZt", // Replace with actual Razorpay Key ID 
         amount: order.amount,
         currency: order.currency,
         name: "Real Estate Platform",
