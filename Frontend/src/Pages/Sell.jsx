@@ -9,6 +9,7 @@ import {
   MenuItem,
   Button,
   Alert,
+  Box,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
@@ -30,6 +31,8 @@ const Sell = () => {
   });
   const [error, setError] = useState(null);
   const [sellerId, setSellerId] = useState(null);
+  const [propertyId, setPropertyId] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
 
   // Handle form input changes
   const handleChange = (event) => {
@@ -59,6 +62,66 @@ const Sell = () => {
     }
   }, []);
 
+  // Fetch property data for update
+  const fetchPropertyData = async (propertyId) => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch(`http://localhost:9090/api/properties/${propertyId}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch property data.");
+      }
+
+      const data = await response.json();
+      setFormData(data);
+      setIsEditing(true);
+    } catch (error) {
+      console.error("Error fetching property data:", error);
+      setError(error.message);
+    }
+  };
+
+  // Handle update button click
+  const handleUpdateClick = () => {
+    if (!propertyId) {
+      setError("Please enter a valid property ID.");
+      return;
+    }
+    fetchPropertyData(propertyId);
+  };
+
+  // Handle delete button click
+  const handleDelete = async () => {
+    const token = localStorage.getItem("token");
+    if (!token || !sellerId) {
+      setError("User not authenticated. Please log in.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:9090/api/properties/delete/${propertyId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete property.");
+      }
+
+      navigate("/buy");
+    } catch (error) {
+      console.error("Error deleting property:", error);
+      setError(error.message);
+    }
+  };
+
   // Handle form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -82,8 +145,13 @@ const Sell = () => {
     data.append("sellerId", sellerId);
 
     try {
-      const response = await fetch("http://localhost:9090/api/properties/add", {
-        method: "POST",
+      const url = isEditing
+        ? `http://localhost:9090/api/properties/update/${propertyId}`
+        : "http://localhost:9090/api/properties/add";
+      const method = isEditing ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method,
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -105,11 +173,38 @@ const Sell = () => {
   return (
     <Container maxWidth="md">
       <Typography variant="h4" gutterBottom>
-        List Your Property
+        {isEditing ? "Edit Your Property" : "List Your Property"}
       </Typography>
       {error && <Alert severity="error">{error}</Alert>}
+
+      {/* Property ID Section */}
+      <Box sx={{ mb: 4 }}>
+        <TextField
+          label="Property ID"
+          value={propertyId}
+          onChange={(e) => setPropertyId(e.target.value)}
+          fullWidth
+          margin="normal"
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleUpdateClick}
+          sx={{ mr: 2 }}
+        >
+          Update
+        </Button>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={handleDelete}
+        >
+          Delete
+        </Button>
+      </Box>
+
+      {/* Add/Update Property Form */}
       <form onSubmit={handleSubmit}>
-        {/* Form fields */}
         <TextField
           label="Title"
           name="propertyTitle"
@@ -217,7 +312,7 @@ const Sell = () => {
 
         <input type="file" multiple onChange={handleFileChange} accept="image/*" />
         <Button type="submit" variant="contained" color="primary" fullWidth>
-          Submit Listing
+          {isEditing ? "Update Listing" : "Submit Listing"}
         </Button>
       </form>
     </Container>
