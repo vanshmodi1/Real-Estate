@@ -37,7 +37,7 @@ public class AppConfig implements WebMvcConfigurer {
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/auth/register", "/auth/login").permitAll() // Public authentication endpoints
                 .requestMatchers("/api/properties/type/BUY").permitAll() // Allow public access to Buy properties
-                .requestMatchers("/property/**").permitAll() // Allow access to property listings
+                .requestMatchers("/property/**","/users","/api/properties/all","/users/*/role").permitAll() // Allow access to property listings
                 .requestMatchers("/uploads/**").permitAll() // Allow access to uploaded files
                 .requestMatchers("/ratings/**").permitAll() // Allow access to ratings endpoints
                 .requestMatchers("/api/properties/add/**", "/api/properties/update/**", "/api/properties/delete/**").authenticated() // Secure property CRUD
@@ -79,6 +79,6 @@ public class AppConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // Configure static resource handler for serving uploaded files
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:D:/Excelr_Project/realestate_/Backend/uploads/");
+                .addResourceLocations("file:D:\\Project\\RealEstate\\Backend\\uploads");
     }
 }

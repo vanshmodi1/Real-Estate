@@ -144,4 +144,5 @@ public class PropertyController {
             return ResponseEntity.badRequest().body("Property not found or could not be deleted");
         }
     }
+   
 }

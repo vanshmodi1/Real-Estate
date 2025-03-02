@@ -16,7 +16,8 @@ import Wishlist from './Pages/Wishlist';
 
 import BillingAddress from "./Pages/BillingAddress";
 import PropertyDetails from "./pages/PropertyDetails";
-import Payment from "./Pages/Payment"
+import Payment from "./Pages/Payment";
+import Admin from "./Pages/Admin";
 
 
 
@@ -50,6 +51,7 @@ function App() {
             <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/billing-address" element={<BillingAddress />} />
             <Route path="/payment" element={<Payment />} />
+            <Route path="/admin" element= {<Admin />}/>
           </Routes>
         </Box>
 
