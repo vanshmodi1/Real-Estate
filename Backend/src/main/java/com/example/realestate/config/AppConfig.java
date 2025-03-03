@@ -41,9 +41,7 @@ public class AppConfig implements WebMvcConfigurer {
                 .requestMatchers("/uploads/**").permitAll() // Allow access to uploaded files
                 .requestMatchers("/ratings/**").permitAll() // Allow access to ratings endpoints
 
-                // ✅ Allow ADMIN, SELLER, and AGENT to access property-related endpoints
-                .requestMatchers("/api/properties/add/**", "/api/properties/update/**", "/api/properties/delete/**", "/api/properties/*/status")
-                    .hasAnyRole("ADMIN", "SELLER", "AGENT") // Allow ADMIN, SELLER, and AGENT
+                
 
                 .anyRequest().authenticated() // Secure all other endpoints
             )
