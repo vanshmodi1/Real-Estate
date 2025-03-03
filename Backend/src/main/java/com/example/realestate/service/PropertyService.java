@@ -2,6 +2,7 @@ package com.example.realestate.service;
 
 import com.example.realestate.exception.PropertyException;
 import com.example.realestate.model.Property;
+import com.example.realestate.user.domain.PropertyStatus;
 import com.example.realestate.repository.PropertyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,7 @@ public class PropertyService {
         }
 
         property.setImageUrls(imageUrls);
+        property.setStatus(PropertyStatus.ACTIVE); // Default status when adding a property
         return propertyRepository.save(property);
     }
 
@@ -64,6 +66,13 @@ public class PropertyService {
             return true;
         }
         return false;
+    }
+
+    // ✅ New method to update property status
+    public Property updatePropertyStatus(Long id, PropertyStatus status) throws PropertyException {
+        Property property = findPropertyById(id);
+        property.setStatus(status);
+        return propertyRepository.save(property);
     }
 
     private void createUploadDirectoryIfNeeded() {

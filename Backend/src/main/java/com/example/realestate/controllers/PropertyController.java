@@ -1,6 +1,8 @@
 package com.example.realestate.controllers;
 
+import com.example.realestate.exception.PropertyException;
 import com.example.realestate.model.Property;
+import com.example.realestate.user.domain.PropertyStatus;
 import com.example.realestate.model.User;
 import com.example.realestate.service.PropertyService;
 import com.example.realestate.repository.UserRepository;
@@ -144,5 +146,17 @@ public class PropertyController {
             return ResponseEntity.badRequest().body("Property not found or could not be deleted");
         }
     }
-   
+
+    // ✅ New endpoint to update property status
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> updatePropertyStatus(@PathVariable Long id, @RequestParam PropertyStatus status) {
+        logger.info("Updating status for property with ID: " + id);
+        try {
+            Property updatedProperty = propertyService.updatePropertyStatus(id, status);
+            return ResponseEntity.ok(updatedProperty);
+        } catch (PropertyException e) {
+            logger.severe("Error updating property status: " + e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

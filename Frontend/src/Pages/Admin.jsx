@@ -18,9 +18,6 @@ import {
   List,
   ListItem,
   ListItemText,
-  Grid,
-  Card,
-  CardContent,
   Button,
   IconButton,
 } from "@mui/material";
@@ -85,6 +82,36 @@ const AdminDashboard = ({ onLogout }) => {
     navigate("/login");
   };
 
+  // Function to handle property deletion
+  const handleDeleteProperty = (id) => {
+    axios
+      .delete(`${API_URL}/api/properties/${id}`)
+      .then(() => {
+        setProperties(properties.filter((property) => property.id !== id));
+      })
+      .catch((error) => console.error("Error deleting property:", error));
+  };
+
+  // Function to handle property status update
+  const handleUpdateStatus = (id, newStatus) => {
+    axios
+      .put(
+        `${API_URL}/api/properties/${id}/status`,
+        { status: newStatus },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      )
+      .then(() => {
+        setProperties(
+          properties.map((property) =>
+            property.id === id ? { ...property, status: newStatus } : property
+          )
+        );
+      })
+      .catch((error) => console.error("Error updating property status:", error));
+  };
+
   return (
     <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "#f5f5f5" }}>
       <AppBar
@@ -147,6 +174,8 @@ const AdminDashboard = ({ onLogout }) => {
                   <TableCell><b>Name</b></TableCell>
                   <TableCell><b>Email</b></TableCell>
                   <TableCell><b>Role</b></TableCell>
+                  <TableCell><b>Created At</b></TableCell>
+                  <TableCell><b>Updated At</b></TableCell>
                   <TableCell><b>Actions</b></TableCell>
                 </TableRow>
               </TableHead>
@@ -155,6 +184,9 @@ const AdminDashboard = ({ onLogout }) => {
                   <TableRow key={user.id} sx={{ bgcolor: index % 2 ? "#fafafa" : "#ffffff" }}>
                     <TableCell>{user.name}</TableCell>
                     <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.role}</TableCell>
+                    <TableCell>{user.createdAt}</TableCell>
+                    <TableCell>{user.updatedAt}</TableCell>
                     <TableCell>
                       <Select
                         value={editedRoles[user.id] || user.role}
@@ -186,48 +218,75 @@ const AdminDashboard = ({ onLogout }) => {
         )}
 
         {activeTab === "properties" && (
-          <Box>
+          <TableContainer component={Paper} sx={{ mt: 3, p: 2, borderRadius: 2, boxShadow: 3 }}>
             <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
               Properties List
             </Typography>
-            <Grid container spacing={3}>
-              {properties.map((property) => (
-                <Grid item xs={12} sm={6} md={3} key={property.id}>
-                  <Card
-                    sx={{
-                      borderRadius: 2,
-                      boxShadow: 3,
-                      transition: "0.3s",
-                      "&:hover": { boxShadow: 6, transform: "scale(1.03)" },
-                      height: "100%", // Ensure cards have the same height
-                      display: "flex",
-                      flexDirection: "column",
-                    }}
-                  >
-                    <CardMedia
-                      component="img"
-                      height="200"
-                      image={property.imageUrls?.[0] || "default-image-url.jpg"}
-                      alt={property.propertyTitle}
-                      sx={{ objectFit: "cover" }}
-                    />
-                    <CardContent sx={{ flexGrow: 1 }}>
-                      <Typography variant="h6" fontWeight="bold">
-                        {property.propertyTitle}
-                      </Typography>
-                      <Typography color="textSecondary">
-                        Location: {property.location}
-                      </Typography>
-                      <Typography>Description: {property.description}</Typography>
-                      <Typography color="primary" fontWeight="bold">
-                        Price: Rs {property.price}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          </Box>
+            <Table>
+              <TableHead>
+                <TableRow sx={{ bgcolor: "#e0e0e0" }}>
+                  <TableCell><b>Image</b></TableCell>
+                  <TableCell><b>Title</b></TableCell>
+                  <TableCell><b>Location</b></TableCell>
+                  <TableCell><b>Description</b></TableCell>
+                  <TableCell><b>Price</b></TableCell>
+                  <TableCell><b>Discounted Price</b></TableCell>
+                  <TableCell><b>Discount Percent</b></TableCell>
+                  <TableCell><b>Property Type</b></TableCell>
+                  <TableCell><b>Property Category</b></TableCell>
+                  <TableCell><b>Number of Bedrooms</b></TableCell>
+                  <TableCell><b>Number of Bathrooms</b></TableCell>
+                  <TableCell><b>Square Feet</b></TableCell>
+                  <TableCell><b>Actions</b></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {properties.map((property, index) => (
+                  <TableRow key={property.id} sx={{ bgcolor: index % 2 ? "#fafafa" : "#ffffff" }}>
+                    <TableCell>
+                      <CardMedia
+                        component="img"
+                        height="100"
+                        image={property.imageUrls?.[0] || "default-image-url.jpg"}
+                        alt={property.propertyTitle}
+                        sx={{ objectFit: "cover", borderRadius: 2 }}
+                      />
+                    </TableCell>
+                    <TableCell>{property.propertyTitle}</TableCell>
+                    <TableCell>{property.location}</TableCell>
+                    <TableCell>{property.description}</TableCell>
+                    <TableCell>Rs {property.price}</TableCell>
+                    <TableCell>{property.discountedPrice}</TableCell>
+                    <TableCell>{property.discountPercent}</TableCell>
+                    <TableCell>{property.propertyType}</TableCell>
+                    <TableCell>{property.propertyCategory}</TableCell>
+                    <TableCell>{property.numberOfBedrooms}</TableCell>
+                    <TableCell>{property.numberOfBathrooms}</TableCell>
+                    <TableCell>{property.squareFeet}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="contained"
+                        color="error"
+                        onClick={() => handleDeleteProperty(property.id)}
+                        sx={{ mb: 1 }}
+                      >
+                        Delete
+                      </Button>
+                      <Select
+                        value={property.status || "ACTIVE"} // Default status
+                        onChange={(e) => handleUpdateStatus(property.id, e.target.value)}
+                        fullWidth
+                      >
+                        <MenuItem value="ACTIVE">Active</MenuItem>
+                        <MenuItem value="INACTIVE">Inactive</MenuItem>
+                        <MenuItem value="SOLD">Sold</MenuItem>
+                      </Select>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         )}
       </Box>
     </Box>
