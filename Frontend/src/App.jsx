@@ -22,6 +22,7 @@ import Wishlist from './Pages/Wishlist';
 import PropertyDetails from "./pages/PropertyDetails";
 import Payment from "./Pages/Payment";
 import Admin from "./Pages/Admin";
+import SuccessPage from "./Pages/SuccessPage";
 
 
 function App() {
@@ -77,6 +78,7 @@ function App() {
             <Route path="/viewdetails" element={<Details />} /> 
             <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/payment" element={<Payment />} />
+            <Route path="/success" element={<SuccessPage></SuccessPage>} />
             <Route path="/admin" element={<Admin onLogout={handleLogout} />} />
           </Routes>
         </Box>

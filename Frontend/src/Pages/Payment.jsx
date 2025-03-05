@@ -8,7 +8,6 @@ const Payment = () => {
   const { propertyId, userId, amount } = location.state || {};
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
 
   useEffect(() => {
@@ -37,7 +36,6 @@ const Payment = () => {
     try {
       setLoading(true);
       setError(null);
-      setSuccessMessage(null);
 
       if (!razorpayLoaded) throw new Error("Razorpay SDK failed to load.");
 
@@ -75,7 +73,15 @@ const Payment = () => {
             });
 
             if (!callbackResponse.ok) throw new Error("Failed to process payment callback.");
-            setSuccessMessage(`Payment successful! Payment ID: ${response.razorpay_payment_id}`);
+
+            // Navigate to the success page with payment details
+            navigate("/success", {
+              state: {
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+              },
+            });
           } catch (error) {
             setError("Failed to process payment callback.");
           }
@@ -135,15 +141,10 @@ const Payment = () => {
           </Button>
         </Box>
 
-        {successMessage && (
-          <Alert severity="success" sx={{ mt: 3 }}>
-            {successMessage}
-          </Alert>
-        )}
         {error && (
           <Alert severity="error" sx={{ mt: 3 }}>
             {error}
-          </Alert>
+          </Alert>  
         )}
       </Paper>
     </Container>
