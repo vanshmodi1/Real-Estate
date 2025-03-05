@@ -19,10 +19,10 @@ import { Box } from "@mui/material";
 import Login from './Pages/Login';
 import Details from './Pages/Details';
 import Wishlist from './Pages/Wishlist';
-import BillingAddress from "./Pages/BillingAddress";
 import PropertyDetails from "./pages/PropertyDetails";
 import Payment from "./Pages/Payment";
 import Admin from "./Pages/Admin";
+
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -74,9 +74,8 @@ function App() {
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/faqs" element={<FAQ />} />
             <Route path="/property/:id" element={<PropertyDetails />} />
-            <Route path="/viewdetails" element={<Details />} />
+            <Route path="/viewdetails" element={<Details />} /> 
             <Route path="/wishlist" element={<Wishlist />} />
-            <Route path="/billing-address" element={<BillingAddress />} />
             <Route path="/payment" element={<Payment />} />
             <Route path="/admin" element={<Admin onLogout={handleLogout} />} />
           </Routes>
