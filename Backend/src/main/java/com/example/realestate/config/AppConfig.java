@@ -1,4 +1,4 @@
-package com.example.realestate.config;
+retpackage com.example.realestate.config;
 
 import com.example.realestate.security.JwtFilter;
 import com.razorpay.RazorpayClient;
@@ -22,10 +22,10 @@ import java.util.Arrays;
 @Configuration
 public class AppConfig implements WebMvcConfigurer {
 
-    @Value("rzp_test_rFwjZbQ2DbFLZt") // Inject Razorpay key ID from application.properties
+    @Value("secret") // Inject Razorpay key ID from application.properties
     private String razorpayKeyId;
 
-    @Value("e2qjKscFgOMyNTbVLpmVrieZ") // Inject Razorpay key secret from application.properties
+    @Value("secret") // Inject Razorpay key secret from application.properties
     private String razorpayKeySecret;
 
     @Bean
