@@ -55,7 +55,7 @@ const Payment = () => {
       const order = await response.json();
 
       const options = {
-        key: "secret", // Replace with your Razorpay key
+        key: "rzp_test_3gebU7OqMOTslp", // Replace with your Razorpay key
         amount: order.amount,
         currency: order.currency,
         name: "Real Estate Platform",

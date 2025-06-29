@@ -1,4 +1,6 @@
-retpackage com.example.realestate.config;
+package com.example.realestate.config;
+
+//retpackage com.example.realestate.config;
 
 import com.example.realestate.security.JwtFilter;
 import com.razorpay.RazorpayClient;
@@ -81,6 +83,6 @@ public class AppConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // Configure static resource handler for serving uploaded files
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:D:\\Excelr_Project\\RealEstate\\Backend\\uploads");
+                .addResourceLocations("file:C:\\Manipal_Project\\RealEstate\\Backend\\uploads");
     }
 }
